@@ -881,3 +881,94 @@ input:focus,textarea:focus,select:focus{
 .storefront .contact,
 .storefront .about{isolation:isolate}
 .storefront .site-footer{z-index:2}
+
+
+/* === Official Ganduvaru Logo Integration === */
+.official-brand{
+  min-width:auto;
+  gap:0;
+}
+.official-brand img{
+  width:68px;
+  height:68px;
+  object-fit:contain;
+  border-radius:10px;
+  filter:none;
+  transform:none;
+}
+.official-brand:hover img{
+  transform:scale(1.025);
+  filter:drop-shadow(0 10px 26px rgba(255,230,0,.14));
+}
+.storefront .site-header{
+  min-height:82px;
+}
+.storefront .site-header .official-brand img{
+  width:72px;
+  height:72px;
+}
+.storefront .site-header.scrolled .official-brand img{
+  width:60px;
+  height:60px;
+}
+.storefront .footer-brand{
+  display:inline-flex;
+  width:max-content;
+  margin-bottom:18px;
+}
+.storefront .footer-brand img{
+  width:138px;
+  height:138px;
+  border-radius:18px;
+  box-shadow:0 22px 60px rgba(0,0,0,.24);
+}
+.admin-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.admin-brand img{
+  width:62px;
+  height:62px;
+}
+.admin-brand span{
+  display:flex;
+  flex-direction:column;
+}
+.admin-brand small{
+  font-size:10px;
+  letter-spacing:.28em;
+  color:var(--gold);
+  font-weight:800;
+}
+@media(max-width:680px){
+  .storefront .site-header{
+    min-height:70px;
+  }
+  .storefront .site-header .official-brand img{
+    width:56px;
+    height:56px;
+  }
+  .storefront .site-header.scrolled .official-brand img{
+    width:50px;
+    height:50px;
+  }
+  .storefront .footer-brand img{
+    width:116px;
+    height:116px;
+  }
+  .admin-brand img{
+    width:54px;
+    height:54px;
+  }
+}
+@media(max-width:380px){
+  .storefront .site-header .official-brand img{
+    width:50px;
+    height:50px;
+  }
+  .storefront .footer-brand img{
+    width:104px;
+    height:104px;
+  }
+}
