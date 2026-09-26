@@ -7,6 +7,11 @@
   const money = v => v == null ? "Ask for price" : "MVR " + Number(v).toLocaleString();
   const digits = v => (v||"").replace(/\D/g,"");
   const initials = s => (s||"G").split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase();
+  const categoryIcon = c => ({
+    "Phones":"▯","Tablets":"▭","Audio":"◉","Accessories":"✦","Smart Watches":"◌",
+    "Networking":"⌁","Home Appliances":"◇","Personal Care Electronics":"✧",
+    "Skincare":"◫","Beauty":"✤"
+  }[c]||"G");
   function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("show"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2200); }
   function saveCart(){ localStorage.setItem("ganduvaru_cart",JSON.stringify(state.cart)); renderCart(); }
   function openLayer(id){ $("#"+id).classList.add("open"); $("#"+id).setAttribute("aria-hidden","false"); if(id.includes("Drawer")) $("#backdrop").hidden=false; }
@@ -87,7 +92,7 @@
     const list=filtered(); $("#emptyState").hidden=!!list.length;
     $("#productGrid").innerHTML=list.map(p=>{
       const s=getStore(p.store);
-      const media=p.image?'<img src="'+p.image+'" alt="'+p.name+'" loading="lazy" onerror="this.remove()">':'<div class="product-fallback">'+initials(p.name)+'</div>';
+      const media=p.image?'<img src="'+p.image+'" alt="'+p.name+'" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=&quot;product-fallback&quot;><span class=&quot;fallback-icon&quot;>'+categoryIcon(p.category)+'</span><small>'+p.category+'</small></div>\'">':'<div class="product-fallback"><span class="fallback-icon">'+categoryIcon(p.category)+'</span><small>'+p.category+'</small></div>';
       return `<article class="product-card" data-product="${p.id}">
         <div class="product-media">${media}${p.badge?'<span class="product-badge">'+p.badge+'</span>':""}</div>
         <div class="product-info"><span class="product-store">${s.name||p.store}</span><h3>${p.name}</h3><p>${p.description||""}</p>
