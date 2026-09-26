@@ -874,3 +874,10 @@ input:focus,textarea:focus,select:focus{
   .storefront .footer-grid a,
   .storefront .footer-link{font-size:12px}
 }
+
+/* === Audit stacking fix === */
+.storefront .stores,
+.storefront .shop,
+.storefront .contact,
+.storefront .about{isolation:isolate}
+.storefront .site-footer{z-index:2}
