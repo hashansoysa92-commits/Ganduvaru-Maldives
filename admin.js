@@ -1,28 +1,61 @@
 (() => {
-  const CFG=window.GANDUVARU_CONFIG.github, $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-  let token="", data=null, fileSha="", dirty=false;
-  const api="https://api.github.com/repos/"+CFG.owner+"/"+CFG.repo+"/contents/"+CFG.catalogPath;
+  const ROOT=window.GANDUVARU_CONFIG||{}, SB=ROOT.supabase||{}, $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  let sessionToken=sessionStorage.getItem("ganduvaru_admin_session")||"", data=null, dirty=false;
+
   function toast(m){const e=$("#toast");e.textContent=m;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2300)}
   function mark(){dirty=true;$("#changeStatus").textContent="Unsaved changes.";$("#changeStatus").style.color="#f0d89c"}
   function clean(){dirty=false;$("#changeStatus").textContent="All changes published.";$("#changeStatus").style.color="#93d9ad"}
   function slug(s){return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")+"-"+Date.now().toString(36)}
-  async function gh(url,opt={}){const r=await fetch(url,{...opt,headers:{Accept:"application/vnd.github+json",Authorization:"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28",...(opt.headers||{})}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).message||"GitHub request failed");return r.json()}
-  function decode(s){return decodeURIComponent(escape(atob(s.replace(/\n/g,""))))}
-  function encode(s){return btoa(unescape(encodeURIComponent(s)))}
-  async function login(){
-    token=$("#tokenInput").value.trim();if(!token){toast("Enter a GitHub token");return}
-    try{const f=await gh(api+"?ref="+CFG.branch);fileSha=f.sha;data=JSON.parse(decode(f.content));sessionStorage.setItem("ganduvaru_admin_token",token);$("#loginBox").hidden=true;$("#adminApp").hidden=false;renderAll();toast("Admin connected")}
-    catch(e){toast(e.message)}
+  function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+  async function jsonFetch(url,opt={}){
+    const r=await fetch(url,{...opt,headers:{apikey:SB.key,"Content-Type":"application/json",...(opt.headers||{})}});
+    const body=await r.json().catch(()=>null);
+    if(!r.ok) throw new Error(body?.message||body?.error_description||body?.hint||"Request failed");
+    return body;
   }
+  async function rpc(name,payload){
+    return jsonFetch(SB.url+"/rest/v1/rpc/"+name,{method:"POST",body:JSON.stringify(payload)});
+  }
+  async function loadCatalog(){
+    const rows=await jsonFetch(SB.url+"/rest/v1/"+(SB.catalogTable||"ganduvaru_catalog")+"?id=eq.1&select=data",{method:"GET",headers:{"Content-Type":"application/json"}});
+    if(!rows?.[0]?.data) throw new Error("Catalog not found");
+    data=rows[0].data;
+  }
+  function showAdmin(){
+    $("#loginBox").hidden=true; $("#adminApp").hidden=false; renderAll();
+  }
+  function showLogin(){
+    $("#adminApp").hidden=true; $("#loginBox").hidden=false;
+  }
+  async function login(){
+    const username=$("#usernameInput").value.trim(), password=$("#passwordInput").value;
+    if(!username||!password){toast("Enter username and password");return}
+    $("#loginBtn").disabled=true;
+    try{
+      const result=await rpc("ganduvaru_admin_login",{p_username:username,p_password:password});
+      if(!result?.ok||!result?.token) throw new Error(result?.message||"Invalid username or password");
+      sessionToken=result.token; sessionStorage.setItem("ganduvaru_admin_session",sessionToken);
+      $("#passwordInput").value="";
+      await loadCatalog(); showAdmin(); toast("Admin login successful");
+    }catch(e){toast(e.message||"Login failed")}
+    finally{$("#loginBtn").disabled=false}
+  }
+  async function logout(){
+    const t=sessionToken; sessionToken=""; sessionStorage.removeItem("ganduvaru_admin_session");
+    try{if(t)await rpc("ganduvaru_admin_logout",{p_token:t})}catch(e){}
+    data=null; showLogin(); $("#passwordInput").value=""; toast("Logged out");
+  }
+
   function renderAll(){
     $("#siteAnnouncement").value=data.site.announcement||"";$("#siteHeroTitle").value=data.site.heroTitle||"";$("#siteHeroSubtitle").value=data.site.heroSubtitle||"";$("#siteAboutTitle").value=data.site.aboutTitle||"";$("#siteAboutText").value=data.site.aboutText||"";$("#siteOrderWhatsApp").value=data.site.orderWhatsApp||"";
-    $("#pStore").innerHTML=data.stores.map(s=>'<option value="'+s.id+'">'+s.name+'</option>').join("");
+    $("#pStore").innerHTML=data.stores.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join("");
     renderTabs();renderProducts();renderStores();
   }
-  function renderTabs(){$("#tabsList").innerHTML=data.tabs.map((t,i)=>'<div class="admin-row"><div><strong>'+t.label+'</strong><small>'+t.href+'</small></div><button class="danger-btn" data-del-tab="'+i+'">Remove</button></div>').join("")}
-  function renderProducts(){$("#productsList").innerHTML=data.products.map((p,i)=>'<div class="admin-row"><div><strong>'+p.name+'</strong><small>'+p.category+' · '+(p.price==null?"Ask for price":"MVR "+p.price)+'</small></div><button class="danger-btn" data-del-product="'+i+'">Remove</button></div>').join("")}
+  function renderTabs(){$("#tabsList").innerHTML=data.tabs.map((t,i)=>'<div class="admin-row"><div><strong>'+esc(t.label)+'</strong><small>'+esc(t.href)+'</small></div><button class="danger-btn" data-del-tab="'+i+'">Remove</button></div>').join("")}
+  function renderProducts(){$("#productsList").innerHTML=data.products.map((p,i)=>'<div class="admin-row"><div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' · '+(p.price==null?"Ask for price":"MVR "+Number(p.price).toLocaleString())+'</small></div><button class="danger-btn" data-del-product="'+i+'">Remove</button></div>').join("")}
   function renderStores(){
-    $("#storesList").innerHTML=data.stores.map((s,i)=>'<div class="admin-row" style="display:block"><strong>'+s.name+'</strong><div class="form-grid" style="margin-top:10px">'+
+    $("#storesList").innerHTML=data.stores.map((s,i)=>'<div class="admin-row" style="display:block"><strong>'+esc(s.name)+'</strong><div class="form-grid" style="margin-top:10px">'+
       '<label>Name<input data-store-field="'+i+':name" value="'+esc(s.name)+'"></label>'+
       '<label>Phone<input data-store-field="'+i+':phone" value="'+esc(s.phone||"")+'"></label>'+
       '<label>WhatsApp<input data-store-field="'+i+':whatsapp" value="'+esc(s.whatsapp||"")+'"></label>'+
@@ -31,30 +64,40 @@
       '<label class="span-2">Summary<textarea rows="2" data-store-field="'+i+':summary">'+esc(s.summary||"")+'</textarea></label>'+
       '<label class="span-2">Facebook<input data-store-field="'+i+':facebook" value="'+esc(s.facebook||"")+'"></label></div><button class="danger-btn" style="margin-top:10px" data-del-store="'+i+'">Remove store</button></div>').join("")
   }
-  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
   function syncContent(){data.site.announcement=$("#siteAnnouncement").value;data.site.heroTitle=$("#siteHeroTitle").value;data.site.heroSubtitle=$("#siteHeroSubtitle").value;data.site.aboutTitle=$("#siteAboutTitle").value;data.site.aboutText=$("#siteAboutText").value;data.site.orderWhatsApp=$("#siteOrderWhatsApp").value}
   async function save(){
-    syncContent();
+    syncContent(); $("#saveBtn").disabled=true;
     try{
-      const body={message:"Update storefront content from Ganduvaru Admin",content:encode(JSON.stringify(data,null,2)),sha:fileSha,branch:CFG.branch};
-      const r=await gh(api,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});fileSha=r.content.sha;clean();toast("Published to GitHub")}
-    catch(e){toast(e.message)}
+      const result=await rpc("ganduvaru_admin_save",{p_token:sessionToken,p_data:data});
+      if(!result?.ok){
+        if(/session|unauthorized/i.test(result?.message||"")){sessionStorage.removeItem("ganduvaru_admin_session");sessionToken="";showLogin()}
+        throw new Error(result?.message||"Publish failed");
+      }
+      clean();toast("Changes are live");
+    }catch(e){toast(e.message||"Publish failed")}
+    finally{$("#saveBtn").disabled=false}
   }
+
   document.addEventListener("input",e=>{
     if(!data)return;
     if(e.target.closest(".admin-section[data-admin-section='content']"))mark();
     if(e.target.dataset.storeField){const [i,k]=e.target.dataset.storeField.split(":");data.stores[Number(i)][k]=e.target.value;mark()}
   });
   document.addEventListener("click",e=>{
+    if(!data)return;
     const tab=e.target.closest("[data-admin-tab]");if(tab){$$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));$$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab))}
     const dt=e.target.closest("[data-del-tab]");if(dt){data.tabs.splice(Number(dt.dataset.delTab),1);renderTabs();mark()}
     const dp=e.target.closest("[data-del-product]");if(dp){data.products.splice(Number(dp.dataset.delProduct),1);renderProducts();mark()}
-    const ds=e.target.closest("[data-del-store]");if(ds){const i=Number(ds.dataset.delStore), id=data.stores[i]?.id;if(id&&data.products.some(p=>p.store===id)){if(!confirm("This store still has products. Remove the store anyway?"))return}data.stores.splice(i,1);renderAll();mark()}
+    const ds=e.target.closest("[data-del-store]");if(ds){const i=Number(ds.dataset.delStore),id=data.stores[i]?.id;if(id&&data.products.some(p=>p.store===id)){if(!confirm("This store still has products. Remove the store anyway?"))return}data.stores.splice(i,1);renderAll();mark()}
   });
+
   $("#loginBtn").onclick=login;
+  $("#passwordInput").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+  $("#logoutBtn").onclick=logout;
   $("#addTabBtn").onclick=()=>{const l=$("#tabLabel").value.trim(),h=$("#tabHref").value.trim();if(!l||!h)return toast("Enter label and link");data.tabs.push({label:l,href:h});$("#tabLabel").value="";$("#tabHref").value="";renderTabs();mark()};
   $("#addProductBtn").onclick=()=>{const n=$("#pName").value.trim();if(!n)return toast("Enter product name");const raw=$("#pPrice").value.trim();data.products.unshift({id:slug(n),name:n,store:$("#pStore").value,category:$("#pCategory").value.trim()||"Other",price:raw===""?null:Number(raw),badge:$("#pBadge").value.trim(),description:$("#pDescription").value.trim(),image:$("#pImage").value.trim(),featured:$("#pFeatured").checked,stock:$("#pStock").value.trim()||"Ask for stock"});["pName","pCategory","pPrice","pBadge","pDescription","pImage","pStock"].forEach(id=>$("#"+id).value="");$("#pFeatured").checked=false;renderProducts();mark();toast("Product added")};
   $("#addStoreBtn").onclick=()=>{const n=$("#sName").value.trim();if(!n)return toast("Enter store name");data.stores.push({id:slug(n),name:n,icon:$("#sIcon").value.trim()||"◇",accent:$("#sAccent").value||"#d6b36a",summary:$("#sSummary").value.trim(),address:$("#sAddress").value.trim(),phone:$("#sPhone").value.trim(),whatsapp:$("#sWhatsApp").value.trim(),email:$("#sEmail").value.trim(),facebook:$("#sFacebook").value.trim()});["sName","sIcon","sSummary","sAddress","sPhone","sWhatsApp","sEmail","sFacebook"].forEach(id=>$("#"+id).value="");renderAll();mark();toast("Store added")};
   $("#saveBtn").onclick=save;
-  const saved=sessionStorage.getItem("ganduvaru_admin_token");if(saved){$("#tokenInput").value=saved;login()}
+
+  (async()=>{if(!SB.url||!SB.key){toast("Backend configuration missing");return}if(sessionToken){try{await loadCatalog();showAdmin()}catch(e){sessionStorage.removeItem("ganduvaru_admin_session");sessionToken="";showLogin()}}})();
 })();
