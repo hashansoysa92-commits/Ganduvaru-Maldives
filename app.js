@@ -68,7 +68,7 @@
 
     const cats = ["All", ...new Set(d.products.map(p=>p.category).filter(Boolean))];
     $("#filters").innerHTML=cats.map(c=>'<button class="filter-chip'+(c==="All"?" active":"")+'" data-filter="'+c+'">'+c+'</button>').join("");
-    requestAnimationFrame(applyPageOverrides);
+    requestAnimationFrame(()=>{applyPageOverrides();refreshLuxuryMotion();});
   }
 
   function filtered(){
@@ -94,7 +94,7 @@
           <div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add-button" data-add="${p.id}">Add to bag</button></div>
         </div></article>`;
     }).join("");
-    requestAnimationFrame(applyPageOverrides);
+    requestAnimationFrame(()=>{applyPageOverrides();refreshLuxuryMotion();});
   }
 
   function addToCart(id){
@@ -270,6 +270,69 @@
     parent.postMessage({type:"GANDUVARU_EDITOR_READY"},"*");
   }
 
+
+  let luxuryObserver=null;
+
+  function refreshLuxuryMotion(){
+    if(!luxuryObserver)return;
+    const groups=[
+      [".hero-copy > *",0],
+      [".hero-visual",80],
+      [".section-heading",0],
+      [".store-card",45],
+      [".product-card",35],
+      [".service-grid article",55],
+      [".about-card",0],
+      [".contact-card",45],
+      [".footer-grid > div",40]
+    ];
+    groups.forEach(([selector,step])=>{
+      document.querySelectorAll(selector).forEach((el,i)=>{
+        if(el.dataset.luxuryBound)return;
+        el.dataset.luxuryBound="1";
+        el.classList.add("luxury-reveal");
+        el.style.setProperty("--reveal-delay",Math.min(i*step,220)+"ms");
+        luxuryObserver.observe(el);
+      });
+    });
+  }
+
+  function initLuxuryMotion(){
+    const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduced){
+      document.querySelectorAll(".luxury-reveal").forEach(el=>el.classList.add("in-view"));
+      return;
+    }
+
+    luxuryObserver=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add("in-view");
+          luxuryObserver.unobserve(entry.target);
+        }
+      });
+    },{threshold:.12,rootMargin:"0px 0px -5% 0px"});
+
+    refreshLuxuryMotion();
+
+    const header=document.querySelector(".site-header");
+    const syncHeader=()=>header?.classList.toggle("scrolled",window.scrollY>28);
+    syncHeader();
+    window.addEventListener("scroll",syncHeader,{passive:true});
+
+    const hero=document.querySelector(".hero-visual");
+    const card=document.querySelector(".hero-card-main");
+    if(hero&&card&&window.matchMedia("(min-width: 901px) and (hover: hover)").matches){
+      hero.addEventListener("pointermove",e=>{
+        const r=hero.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        card.style.transform=`translate3d(${x*8}px,${y*6}px,0) rotateX(${-y*2.5}deg) rotateY(${x*3}deg)`;
+      });
+      hero.addEventListener("pointerleave",()=>{card.style.transform=""});
+    }
+  }
+
   function bind(){
     document.addEventListener("click",e=>{
       const add=e.target.closest("[data-add]"); if(add) addToCart(add.dataset.add);
@@ -290,5 +353,5 @@
     $("#searchToggle").onclick=()=>{$("#shop").scrollIntoView();setTimeout(()=>$("#productSearch").focus(),400)};
     $("#otpModeNotice").textContent=CFG.otpRequestUrl?"SMS OTP is enabled.":"Demo OTP mode is enabled until an SMS provider is connected.";
   }
-  load().then(()=>startEditorBridge());
+  load().then(()=>{initLuxuryMotion();startEditorBridge();});
 })();
