@@ -29,7 +29,7 @@
       '<label>Email<input data-store-field="'+i+':email" value="'+esc(s.email||"")+'"></label>'+
       '<label class="span-2">Address<input data-store-field="'+i+':address" value="'+esc(s.address||"")+'"></label>'+
       '<label class="span-2">Summary<textarea rows="2" data-store-field="'+i+':summary">'+esc(s.summary||"")+'</textarea></label>'+
-      '<label class="span-2">Facebook<input data-store-field="'+i+':facebook" value="'+esc(s.facebook||"")+'"></label></div></div>').join("")
+      '<label class="span-2">Facebook<input data-store-field="'+i+':facebook" value="'+esc(s.facebook||"")+'"></label></div><button class="danger-btn" style="margin-top:10px" data-del-store="'+i+'">Remove store</button></div>').join("")
   }
   function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
   function syncContent(){data.site.announcement=$("#siteAnnouncement").value;data.site.heroTitle=$("#siteHeroTitle").value;data.site.heroSubtitle=$("#siteHeroSubtitle").value;data.site.aboutTitle=$("#siteAboutTitle").value;data.site.aboutText=$("#siteAboutText").value;data.site.orderWhatsApp=$("#siteOrderWhatsApp").value}
@@ -49,10 +49,12 @@
     const tab=e.target.closest("[data-admin-tab]");if(tab){$$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));$$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab))}
     const dt=e.target.closest("[data-del-tab]");if(dt){data.tabs.splice(Number(dt.dataset.delTab),1);renderTabs();mark()}
     const dp=e.target.closest("[data-del-product]");if(dp){data.products.splice(Number(dp.dataset.delProduct),1);renderProducts();mark()}
+    const ds=e.target.closest("[data-del-store]");if(ds){const i=Number(ds.dataset.delStore), id=data.stores[i]?.id;if(id&&data.products.some(p=>p.store===id)){if(!confirm("This store still has products. Remove the store anyway?"))return}data.stores.splice(i,1);renderAll();mark()}
   });
   $("#loginBtn").onclick=login;
   $("#addTabBtn").onclick=()=>{const l=$("#tabLabel").value.trim(),h=$("#tabHref").value.trim();if(!l||!h)return toast("Enter label and link");data.tabs.push({label:l,href:h});$("#tabLabel").value="";$("#tabHref").value="";renderTabs();mark()};
   $("#addProductBtn").onclick=()=>{const n=$("#pName").value.trim();if(!n)return toast("Enter product name");const raw=$("#pPrice").value.trim();data.products.unshift({id:slug(n),name:n,store:$("#pStore").value,category:$("#pCategory").value.trim()||"Other",price:raw===""?null:Number(raw),badge:$("#pBadge").value.trim(),description:$("#pDescription").value.trim(),image:$("#pImage").value.trim(),featured:$("#pFeatured").checked,stock:$("#pStock").value.trim()||"Ask for stock"});["pName","pCategory","pPrice","pBadge","pDescription","pImage","pStock"].forEach(id=>$("#"+id).value="");$("#pFeatured").checked=false;renderProducts();mark();toast("Product added")};
+  $("#addStoreBtn").onclick=()=>{const n=$("#sName").value.trim();if(!n)return toast("Enter store name");data.stores.push({id:slug(n),name:n,icon:$("#sIcon").value.trim()||"◇",accent:$("#sAccent").value||"#d6b36a",summary:$("#sSummary").value.trim(),address:$("#sAddress").value.trim(),phone:$("#sPhone").value.trim(),whatsapp:$("#sWhatsApp").value.trim(),email:$("#sEmail").value.trim(),facebook:$("#sFacebook").value.trim()});["sName","sIcon","sSummary","sAddress","sPhone","sWhatsApp","sEmail","sFacebook"].forEach(id=>$("#"+id).value="");renderAll();mark();toast("Store added")};
   $("#saveBtn").onclick=save;
   const saved=sessionStorage.getItem("ganduvaru_admin_token");if(saved){$("#tokenInput").value=saved;login()}
 })();
