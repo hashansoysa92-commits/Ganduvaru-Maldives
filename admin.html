@@ -79,7 +79,19 @@
 
           <section class="admin-panel admin-section" data-admin-section="stores">
             <h2>Stores</h2>
-            <p style="color:#9da3ad;font-size:12px">Edit contact and store details directly below.</p>
+            <p style="color:#9da3ad;font-size:12px">Add, edit or remove specialist stores and business sections.</p>
+            <div class="form-grid">
+              <label>Store name<input id="sName" placeholder="New store name" /></label>
+              <label>Icon<input id="sIcon" placeholder="◇" /></label>
+              <label>Phone<input id="sPhone" /></label>
+              <label>WhatsApp<input id="sWhatsApp" /></label>
+              <label>Email<input id="sEmail" /></label>
+              <label>Accent colour<input id="sAccent" type="color" value="#d6b36a" /></label>
+              <label class="span-2">Address<input id="sAddress" /></label>
+              <label class="span-2">Facebook / social URL<input id="sFacebook" /></label>
+              <label class="span-2">Summary<textarea id="sSummary" rows="2"></textarea></label>
+            </div>
+            <button class="ghost-cta" id="addStoreBtn">Add store</button>
             <div class="admin-list" id="storesList"></div>
           </section>
 
