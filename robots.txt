@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hashansoysa92-commits.github.io/Ganduvaru-Maldives/sitemap.xml
