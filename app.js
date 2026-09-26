@@ -57,7 +57,7 @@
       </article>`).join("");
 
     $("#contactGrid").innerHTML=d.stores.map(s=>`
-      <article class="contact-card">
+      <article class="contact-card" data-store-contact="${s.id}">
         <h3>${s.name}</h3><p>${s.address||""}</p><p>${s.phone||""}${s.whatsapp && s.whatsapp!==s.phone ? " · WhatsApp "+s.whatsapp : ""}</p>${s.email?'<p>'+s.email+'</p>':""}
         <div class="contact-actions">
           ${s.phone?'<a class="small-button" href="tel:'+digits(s.phone)+'">Call</a>':""}
@@ -68,6 +68,7 @@
 
     const cats = ["All", ...new Set(d.products.map(p=>p.category).filter(Boolean))];
     $("#filters").innerHTML=cats.map(c=>'<button class="filter-chip'+(c==="All"?" active":"")+'" data-filter="'+c+'">'+c+'</button>').join("");
+    requestAnimationFrame(applyPageOverrides);
   }
 
   function filtered(){
@@ -87,12 +88,13 @@
     $("#productGrid").innerHTML=list.map(p=>{
       const s=getStore(p.store);
       const media=p.image?'<img src="'+p.image+'" alt="'+p.name+'" loading="lazy" onerror="this.remove()">':'<div class="product-fallback">'+initials(p.name)+'</div>';
-      return `<article class="product-card">
+      return `<article class="product-card" data-product="${p.id}">
         <div class="product-media">${media}${p.badge?'<span class="product-badge">'+p.badge+'</span>':""}</div>
         <div class="product-info"><span class="product-store">${s.name||p.store}</span><h3>${p.name}</h3><p>${p.description||""}</p>
           <div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add-button" data-add="${p.id}">Add to bag</button></div>
         </div></article>`;
     }).join("");
+    requestAnimationFrame(applyPageOverrides);
   }
 
   function addToCart(id){
@@ -159,6 +161,115 @@
     window.open("https://wa.me/"+digits(number)+"?text="+encodeURIComponent(msg),"_blank","noopener");
   }
 
+
+  function applyOneOverride(el,o){
+    if(!el||!o)return;
+    if(Object.prototype.hasOwnProperty.call(o,"text")) el.textContent=o.text;
+    if(Object.prototype.hasOwnProperty.call(o,"href") && el.matches("a")) {
+      if(o.href) el.setAttribute("href",o.href); else el.removeAttribute("href");
+    }
+    if(Object.prototype.hasOwnProperty.call(o,"src") && el.matches("img")) {
+      if(o.src) el.setAttribute("src",o.src);
+    }
+    if(o.color) el.style.color=o.color;
+    if(o.background) el.style.background=o.background;
+    if(o.fontSize!==null && o.fontSize!==undefined && o.fontSize!=="") el.style.fontSize=Number(o.fontSize)+"px";
+    if(o.radius!==null && o.radius!==undefined && o.radius!=="") el.style.borderRadius=Number(o.radius)+"px";
+    if(o.customCss) el.style.cssText += ";"+o.customCss;
+    if(o.hidden===true) el.style.setProperty("display","none","important");
+  }
+
+  function applyPageOverrides(){
+    const overrides=state.data?.pageOverrides||{};
+    Object.entries(overrides).forEach(([selector,o])=>{
+      try{ document.querySelectorAll(selector).forEach(el=>applyOneOverride(el,o)); }catch(e){}
+    });
+  }
+
+  function editorEscape(v){
+    if(window.CSS?.escape)return CSS.escape(v);
+    return String(v).replace(/[^a-zA-Z0-9_-]/g,s=>"\\"+s);
+  }
+
+  function editorSelector(el){
+    if(!el || el===document.body || el===document.documentElement)return "body";
+    if(el.id)return "#"+editorEscape(el.id);
+
+    const anchor=el.closest("[data-product],[data-store-contact],[data-store],section[id],footer,header.site-header");
+    let base="", root=null;
+    if(anchor){
+      root=anchor;
+      if(anchor.dataset.product)base='[data-product="'+editorEscape(anchor.dataset.product)+'"]';
+      else if(anchor.dataset.storeContact)base='[data-store-contact="'+editorEscape(anchor.dataset.storeContact)+'"]';
+      else if(anchor.dataset.store)base='[data-store="'+editorEscape(anchor.dataset.store)+'"]';
+      else if(anchor.id)base="#"+editorEscape(anchor.id);
+      else if(anchor.matches("footer"))base=".site-footer";
+      else if(anchor.matches("header.site-header"))base=".site-header";
+      if(el===anchor)return base;
+    } else {
+      root=document.body;base="body";
+    }
+
+    const parts=[]; let cur=el;
+    while(cur && cur!==root && cur!==document.body){
+      let p=cur.tagName.toLowerCase();
+      const classes=[...cur.classList].filter(x=>!x.startsWith("ganduvaru-editor")).slice(0,2);
+      if(classes.length)p+="."+classes.map(editorEscape).join(".");
+      const same=[...cur.parentElement.children].filter(x=>x.tagName===cur.tagName);
+      if(same.length>1)p+=":nth-of-type("+(same.indexOf(cur)+1)+")";
+      parts.unshift(p);cur=cur.parentElement;
+    }
+    return base+(parts.length?" > "+parts.join(" > "):"");
+  }
+
+  function startEditorBridge(){
+    if(new URLSearchParams(location.search).get("editor")!=="1")return;
+    document.body.classList.add("ganduvaru-editor-mode");
+    const style=document.createElement("style");
+    style.textContent='.ganduvaru-editor-mode *{cursor:crosshair!important}.ganduvaru-editor-mode [data-editor-selected="1"]{outline:3px solid #f0d89c!important;outline-offset:3px!important}.ganduvaru-editor-mode a,.ganduvaru-editor-mode button{cursor:crosshair!important}';
+    document.head.appendChild(style);
+
+    document.addEventListener("click",e=>{
+      const el=e.target.closest("body *");
+      if(!el)return;
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      document.querySelectorAll('[data-editor-selected="1"]').forEach(x=>x.removeAttribute("data-editor-selected"));
+      el.setAttribute("data-editor-selected","1");
+      const cs=getComputedStyle(el);
+      parent.postMessage({
+        type:"GANDUVARU_EDITOR_SELECTED",
+        selector:editorSelector(el),
+        tag:el.tagName.toLowerCase(),
+        text:(el.matches("input,textarea,select")?"":el.textContent||"").trim(),
+        href:el.matches("a")?(el.getAttribute("href")||""):"",
+        src:el.matches("img")?(el.getAttribute("src")||""):"",
+        color:cs.color,
+        background:cs.backgroundColor,
+        fontSize:parseFloat(cs.fontSize)||null,
+        radius:parseFloat(cs.borderRadius)||null
+      },"*");
+    },true);
+
+    window.addEventListener("message",e=>{
+      const m=e.data||{};
+      if(m.type==="GANDUVARU_EDITOR_DATA" && m.data){
+        state.data=m.data; state.products=[...(state.data.products||[])];
+        hydrateSite();renderProducts();renderCart();updateAccount();applyPageOverrides();
+      }
+      if(m.type==="GANDUVARU_EDITOR_APPLY" && m.selector){
+        try{document.querySelectorAll(m.selector).forEach(el=>applyOneOverride(el,m.override||{}));}catch(err){}
+      }
+      if(m.type==="GANDUVARU_EDITOR_RESET" && m.selector){
+        location.reload();
+      }
+      if(m.type==="GANDUVARU_EDITOR_SCROLL" && m.section){
+        const target=m.section==="footer"?document.querySelector("footer"):document.getElementById(m.section);
+        target?.scrollIntoView({behavior:"smooth",block:"start"});
+      }
+    });
+    parent.postMessage({type:"GANDUVARU_EDITOR_READY"},"*");
+  }
+
   function bind(){
     document.addEventListener("click",e=>{
       const add=e.target.closest("[data-add]"); if(add) addToCart(add.dataset.add);
@@ -179,5 +290,5 @@
     $("#searchToggle").onclick=()=>{$("#shop").scrollIntoView();setTimeout(()=>$("#productSearch").focus(),400)};
     $("#otpModeNotice").textContent=CFG.otpRequestUrl?"SMS OTP is enabled.":"Demo OTP mode is enabled until an SMS provider is connected.";
   }
-  load();
+  load().then(()=>startEditorBridge());
 })();
