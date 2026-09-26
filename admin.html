@@ -22,14 +22,15 @@
     <section class="admin-login" id="loginBox">
       <p class="eyebrow">SECURE ADMIN ACCESS</p>
       <h1>Manage the storefront.</h1>
-      <p style="color:#9da3ad;font-size:13px">Use a GitHub fine-grained personal access token with <strong>Contents: Read and write</strong> access only to this repository. The token is kept in this browser session and is never saved in the repository.</p>
-      <label>GitHub access token<input id="tokenInput" type="password" autocomplete="off" placeholder="github_pat_..." /></label>
-      <button class="primary-cta full" id="loginBtn">Connect admin</button>
-      <p class="fine-print">Repository: hashansoysa92-commits/Ganduvaru-Maldives</p>
+      <p style="color:#9da3ad;font-size:13px">Sign in with your Ganduvaru admin username and password. Your password is verified securely and is never stored in the website code.</p>
+      <label>Username<input id="usernameInput" type="text" autocomplete="username" placeholder="Username" /></label>
+      <label>Password<input id="passwordInput" type="password" autocomplete="current-password" placeholder="Password" /></label>
+      <button class="primary-cta full" id="loginBtn">Login to Admin</button>
+      <p class="fine-print">Secure admin access · Session expires automatically.</p>
     </section>
 
     <section id="adminApp" hidden>
-      <div class="admin-top"><div><p class="eyebrow">GANDUVARU ADMIN</p><h1>Store control center</h1></div><span class="admin-status" id="adminStatus">Connected</span></div>
+      <div class="admin-top"><div><p class="eyebrow">GANDUVARU ADMIN</p><h1>Store control center</h1></div><div style="display:flex;align-items:center;gap:10px"><span class="admin-status" id="adminStatus">Secure session</span><button class="mini-btn" id="logoutBtn">Logout</button></div></div>
       <div class="admin-grid">
         <nav class="admin-nav">
           <button class="active" data-admin-tab="content">Content</button>
@@ -97,7 +98,7 @@
 
           <div class="savebar">
             <p id="changeStatus">No unsaved changes.</p>
-            <button class="primary-cta" id="saveBtn">Publish changes to GitHub</button>
+            <button class="primary-cta" id="saveBtn">Publish changes</button>
           </div>
         </div>
       </div>
