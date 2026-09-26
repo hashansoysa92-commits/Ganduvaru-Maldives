@@ -15,8 +15,23 @@
 
   async function load(){
     try{
-      const res = await fetch(CFG.catalogPath || "data/catalog.json", {cache:"no-store"});
-      state.data = await res.json(); state.products=[...state.data.products];
+      let loaded=null;
+      if(CFG.supabase?.url && CFG.supabase?.key){
+        try{
+          const endpoint=CFG.supabase.url+"/rest/v1/"+(CFG.supabase.catalogTable||"ganduvaru_catalog")+"?id=eq.1&select=data";
+          const r=await fetch(endpoint,{cache:"no-store",headers:{apikey:CFG.supabase.key}});
+          if(r.ok){
+            const rows=await r.json();
+            loaded=rows?.[0]?.data||null;
+          }
+        }catch(err){ console.warn("Live catalog fallback",err); }
+      }
+      if(!loaded){
+        const res=await fetch(CFG.catalogPath || "data/catalog.json",{cache:"no-store"});
+        if(!res.ok) throw new Error("Catalog unavailable");
+        loaded=await res.json();
+      }
+      state.data=loaded; state.products=[...state.data.products];
       hydrateSite(); bind(); renderProducts(); renderCart(); updateAccount();
     }catch(e){
       console.error(e); $("#productGrid").innerHTML='<div class="empty-state"><strong>Catalog unavailable.</strong><span>Please refresh this page.</span></div>';
