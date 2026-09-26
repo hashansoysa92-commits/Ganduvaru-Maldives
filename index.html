@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0c0d10" />
+  <meta name="description" content="Ganduvaru Maldives — mobiles, electronics, authentic skincare and beauty in the Maldives." />
+  <meta property="og:title" content="Ganduvaru Maldives" />
+  <meta property="og:description" content="Shop mobiles, electronics, skincare and beauty from Ganduvaru Maldives." />
+  <meta property="og:type" content="website" />
+  <title>Ganduvaru Maldives — Premium Shopping</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <div class="announcement" id="announcement">Free delivery available to selected Malé, Hulhumalé, airport & boat locations.</div>
+
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="Ganduvaru Maldives home">
+      <img src="assets/logo.svg" alt="" />
+      <span>
+        <strong>GANDUVARU</strong>
+        <small>MALDIVES</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" id="desktopNav" aria-label="Primary navigation"></nav>
+
+    <div class="header-actions">
+      <button class="icon-button" id="searchToggle" aria-label="Search products">⌕</button>
+      <button class="account-button" id="accountButton">Sign in</button>
+      <button class="cart-button" id="cartButton">Bag <span id="cartCount">0</span></button>
+      <button class="menu-button" id="menuButton" aria-label="Open menu">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero section-shell" id="home">
+      <div class="hero-copy">
+        <p class="eyebrow">GANDUVARU MALDIVES</p>
+        <h1 id="heroTitle">One destination.<br />Four specialist stores.</h1>
+        <p id="heroSubtitle" class="hero-subtitle">Premium mobiles, electronics, authentic skincare and beauty — curated for life in the Maldives.</p>
+        <div class="hero-actions">
+          <a class="primary-cta" href="#shop">Shop collection <span>↗</span></a>
+          <a class="ghost-cta" href="#stores">Explore stores</a>
+        </div>
+        <div class="hero-trust">
+          <span>Genuine products</span>
+          <span>Local support</span>
+          <span>Fast delivery</span>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-card hero-card-main">
+          <span class="mini-label">FEATURED</span>
+          <div class="device-shape">
+            <div class="device-glow"></div>
+            <div class="device-screen"><span>G</span></div>
+          </div>
+          <p>Technology, home & beauty — beautifully together.</p>
+        </div>
+        <div class="floating-chip chip-one">Mobiles</div>
+        <div class="floating-chip chip-two">Electronics</div>
+        <div class="floating-chip chip-three">Beauty</div>
+      </div>
+    </section>
+
+    <section class="stores section-shell" id="stores">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">OUR STORES</p>
+          <h2>Four worlds. One Ganduvaru.</h2>
+        </div>
+        <p>Browse by specialist store, then add everything to one bag.</p>
+      </div>
+      <div class="store-grid" id="storeGrid"></div>
+    </section>
+
+    <section class="shop section-shell" id="shop">
+      <div class="section-heading shop-heading">
+        <div>
+          <p class="eyebrow">SHOP</p>
+          <h2>Discover the collection.</h2>
+        </div>
+        <div class="shop-tools">
+          <label class="search-field">
+            <span>⌕</span>
+            <input id="productSearch" type="search" placeholder="Search products" autocomplete="off" />
+          </label>
+          <select id="sortSelect" aria-label="Sort products">
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="name">Name</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filters" id="filters"></div>
+      <div class="product-grid" id="productGrid"></div>
+      <div class="empty-state" id="emptyState" hidden>
+        <strong>No products found.</strong>
+        <span>Try a different search or category.</span>
+      </div>
+    </section>
+
+    <section class="service-band">
+      <div class="section-shell service-grid">
+        <article>
+          <span class="service-icon">✓</span>
+          <div><strong>Genuine selection</strong><p>Products sourced through trusted channels and specialist stores.</p></div>
+        </article>
+        <article>
+          <span class="service-icon">↗</span>
+          <div><strong>Convenient delivery</strong><p>Delivery options across Malé, Hulhumalé, airport and boat handovers.</p></div>
+        </article>
+        <article>
+          <span class="service-icon">◇</span>
+          <div><strong>Local assistance</strong><p>Talk to the right Ganduvaru team before and after your purchase.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="about section-shell" id="about">
+      <div class="about-card">
+        <div>
+          <p class="eyebrow">ABOUT GANDUVARU</p>
+          <h2 id="aboutTitle">Built around trusted retail in the Maldives.</h2>
+        </div>
+        <div>
+          <p id="aboutText">Ganduvaru brings together specialist retail experiences across mobiles, electronics, skincare and beauty. This website is designed as one modern destination for discovering products, contacting each store and placing orders online.</p>
+          <a class="text-link" href="#contact">Contact our teams <span>→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact section-shell" id="contact">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CONTACT</p>
+          <h2>Choose the team you need.</h2>
+        </div>
+        <p>Direct contact details from each public Ganduvaru store page.</p>
+      </div>
+      <div class="contact-grid" id="contactGrid"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="section-shell footer-grid">
+      <div>
+        <a class="brand footer-brand" href="#home">
+          <img src="assets/logo.svg" alt="" />
+          <span><strong>GANDUVARU</strong><small>MALDIVES</small></span>
+        </a>
+        <p>Mobiles · Electronics · Skincare · Beauty</p>
+      </div>
+      <div>
+        <strong>Shop</strong>
+        <a href="#shop">All products</a>
+        <a href="#stores">Our stores</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div>
+        <strong>Customer</strong>
+        <button class="footer-link" id="footerAccount">Customer login</button>
+        <button class="footer-link" id="footerCart">Shopping bag</button>
+        <a href="admin.html">Admin</a>
+      </div>
+      <div>
+        <strong>Follow</strong>
+        <a href="https://www.facebook.com/ganduvarumobiles" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/GanduvaruMaldives" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+    <div class="section-shell footer-bottom">
+      <span>© <span id="year"></span> Ganduvaru Maldives.</span>
+      <span>Built for secure GitHub Pages deployment.</span>
+    </div>
+  </footer>
+
+  <div class="backdrop" id="backdrop" hidden></div>
+
+  <aside class="drawer cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div><p class="eyebrow">YOUR BAG</p><h3>Shopping bag</h3></div>
+      <button class="close-button" data-close="cartDrawer" aria-label="Close">×</button>
+    </div>
+    <div class="drawer-body" id="cartItems"></div>
+    <div class="drawer-footer">
+      <div class="subtotal"><span>Subtotal</span><strong id="cartSubtotal">MVR 0</strong></div>
+      <p class="fine-print">Final stock, delivery and payment availability are confirmed by the selected store.</p>
+      <button class="primary-cta full" id="checkoutButton">Continue to checkout</button>
+    </div>
+  </aside>
+
+  <aside class="drawer menu-drawer" id="menuDrawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div><p class="eyebrow">MENU</p><h3>Explore</h3></div>
+      <button class="close-button" data-close="menuDrawer" aria-label="Close">×</button>
+    </div>
+    <nav class="mobile-nav" id="mobileNav"></nav>
+  </aside>
+
+  <section class="modal" id="authModal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="close-button modal-close" data-close="authModal" aria-label="Close">×</button>
+      <div class="auth-step" id="authDetailsStep">
+        <p class="eyebrow">CUSTOMER LOGIN</p>
+        <h3>Sign in with your mobile.</h3>
+        <p class="modal-copy">Enter your name and mobile number. A one-time verification code is required before checkout.</p>
+        <label>Name<input id="customerName" type="text" placeholder="Your name" /></label>
+        <label>Mobile number
+          <div class="phone-input"><span>+960</span><input id="customerPhone" inputmode="numeric" placeholder="7XXXXXX" maxlength="10" /></div>
+        </label>
+        <button class="primary-cta full" id="requestOtpButton">Send OTP</button>
+        <p class="fine-print" id="otpModeNotice"></p>
+      </div>
+      <div class="auth-step" id="authOtpStep" hidden>
+        <p class="eyebrow">VERIFY</p>
+        <h3>Enter the 6-digit code.</h3>
+        <p class="modal-copy" id="otpSentTo"></p>
+        <input class="otp-input" id="otpInput" inputmode="numeric" maxlength="6" placeholder="000000" />
+        <button class="primary-cta full" id="verifyOtpButton">Verify & sign in</button>
+        <button class="link-button" id="backToDetails">Change number</button>
+        <div class="demo-code" id="demoCode" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" id="checkoutModal" aria-hidden="true">
+    <div class="modal-card checkout-card">
+      <button class="close-button modal-close" data-close="checkoutModal" aria-label="Close">×</button>
+      <p class="eyebrow">CHECKOUT</p>
+      <h3>Complete your order.</h3>
+      <div class="checkout-user" id="checkoutUser"></div>
+      <label>Delivery / pickup details<textarea id="deliveryDetails" rows="3" placeholder="Island / address / boat name / pickup request"></textarea></label>
+      <label>Order notes<textarea id="orderNotes" rows="2" placeholder="Optional notes"></textarea></label>
+      <div class="payment-options">
+        <label><input type="radio" name="payment" value="Pay on confirmation" checked /> Pay on confirmation</label>
+        <label><input type="radio" name="payment" value="Bank transfer" /> Bank transfer</label>
+        <label><input type="radio" name="payment" value="Store pickup" /> Store pickup</label>
+      </div>
+      <button class="primary-cta full" id="placeOrderButton">Place order via WhatsApp</button>
+      <p class="fine-print">This checkout sends the order to Ganduvaru for stock and payment confirmation. No card details are collected on this website.</p>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
