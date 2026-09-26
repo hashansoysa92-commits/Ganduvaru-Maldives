@@ -972,3 +972,69 @@ input:focus,textarea:focus,select:focus{
     height:104px;
   }
 }
+
+/* === Corrected official logo sizing === */
+.official-brand img{
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  border-radius:8px;
+  background:#fff;
+}
+.storefront .site-header{
+  min-height:96px;
+}
+.storefront .site-header .official-brand img{
+  width:84px;
+  height:84px;
+}
+.storefront .site-header.scrolled{
+  min-height:78px;
+}
+.storefront .site-header.scrolled .official-brand img{
+  width:68px;
+  height:68px;
+}
+.storefront .footer-brand img{
+  width:180px;
+  height:180px;
+  border-radius:12px;
+  background:#fff;
+}
+.admin-brand img{
+  width:76px;
+  height:76px;
+  border-radius:8px;
+  background:#fff;
+}
+@media(max-width:680px){
+  .storefront .site-header{
+    min-height:78px;
+  }
+  .storefront .site-header .official-brand img{
+    width:64px;
+    height:64px;
+  }
+  .storefront .site-header.scrolled .official-brand img{
+    width:58px;
+    height:58px;
+  }
+  .storefront .footer-brand img{
+    width:148px;
+    height:148px;
+  }
+  .admin-brand img{
+    width:64px;
+    height:64px;
+  }
+}
+@media(max-width:380px){
+  .storefront .site-header .official-brand img{
+    width:58px;
+    height:58px;
+  }
+  .storefront .footer-brand img{
+    width:132px;
+    height:132px;
+  }
+}
