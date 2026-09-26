@@ -327,9 +327,10 @@
         const r=hero.getBoundingClientRect();
         const x=(e.clientX-r.left)/r.width-.5;
         const y=(e.clientY-r.top)/r.height-.5;
+        card.style.animation="none";
         card.style.transform=`translate3d(${x*8}px,${y*6}px,0) rotateX(${-y*2.5}deg) rotateY(${x*3}deg)`;
       });
-      hero.addEventListener("pointerleave",()=>{card.style.transform=""});
+      hero.addEventListener("pointerleave",()=>{card.style.transform="";card.style.animation=""});
     }
   }
 
