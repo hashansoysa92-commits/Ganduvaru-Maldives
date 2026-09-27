@@ -104,12 +104,12 @@
   }
   function applyRoleUI(){
     const superAdmin=adminRole==="super_admin";
-    $("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
+    $$("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
     $("#adminRoleBadge").textContent=superAdmin?"SUPER ADMIN":"PRODUCT ADMIN";
     $("#adminStatus").textContent=adminUsername||"Secure session";
     if(!superAdmin){
-      $("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x.dataset.adminTab==="products"));
-      $("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection==="products"));
+      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x.dataset.adminTab==="products"));
+      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection==="products"));
       $("#productAccessNote").textContent="Product Admin access: you can add new products only. New products are published immediately.";
     } else {
       $("#productAccessNote").textContent="Add products with multiple photos. Put one image URL on each line. Super Admin can also edit or remove existing products.";
