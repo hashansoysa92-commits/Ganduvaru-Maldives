@@ -377,17 +377,22 @@
 
   function syncContent(){
     data.site=data.site||{};
-    data.site.announcement=$("#siteAnnouncement").value;
-    data.site.heroTitle=$("#siteHeroTitle").value;
-    data.site.heroSubtitle=$("#siteHeroSubtitle").value;
-    data.site.aboutTitle=$("#siteAboutTitle").value;
-    data.site.aboutText=$("#siteAboutText").value;
-    data.site.contactPhone=$("#contactPhone").value.trim();
-    data.site.contactWhatsApp=$("#contactWhatsApp").value.trim();
-    data.site.contactFacebook=$("#contactFacebook").value.trim();
-    data.site.contactInstagram=$("#contactInstagram").value.trim();
-    data.site.contactTikTok=$("#contactTikTok").value.trim();
-    data.site.orderWhatsApp=data.site.contactWhatsApp;
+    if(hasPermission("site_content_manage")){
+      data.site.announcement=$("#siteAnnouncement").value;
+      data.site.heroTitle=$("#siteHeroTitle").value;
+      data.site.heroSubtitle=$("#siteHeroSubtitle").value;
+      data.site.aboutTitle=$("#siteAboutTitle").value;
+      data.site.aboutText=$("#siteAboutText").value;
+    }
+    if(hasPermission("contact_manage")){
+      data.site.contactPhone=$("#contactPhone").value.trim();
+      data.site.contactWhatsApp=$("#contactWhatsApp").value.trim();
+      data.site.contactFacebook=$("#contactFacebook").value.trim();
+      data.site.contactInstagram=$("#contactInstagram").value.trim();
+      data.site.contactTikTok=$("#contactTikTok").value.trim();
+      data.site.orderEmail=$("#orderEmail").value.trim();
+      data.site.orderWhatsApp=$("#orderWhatsApp").value.trim()||data.site.contactWhatsApp;
+    }
   }
   async function save(){
     syncContent();
@@ -414,14 +419,25 @@
 
   document.addEventListener("input",e=>{
     if(!data)return;
-    if(adminRole==="super_admin"&&e.target.closest(".admin-section[data-admin-section='content'],.admin-section[data-admin-section='contact']"))mark();
-    if(adminRole==="super_admin"&&e.target.dataset.promoCatName!==undefined){
+    if(e.target.closest(".admin-section[data-admin-section='content']")&&hasPermission("site_content_manage"))mark();
+    if(e.target.closest(".admin-section[data-admin-section='contact']")&&hasPermission("contact_manage"))mark();
+    if(e.target.dataset.promoCatName!==undefined&&hasPermission("promotions_manage")){
       const i=Number(e.target.dataset.promoCatName),cat=data.promotionCategories?.[i];
       if(!cat)return;
-      const next=e.target.value;
-      cat.name=next;
+      const next=e.target.value;cat.name=next;
       data.promotions.forEach(pr=>{if(pr.categoryId===cat.id)pr.label=next});
       mark();
+    }
+    if(e.target.dataset.categoryName!==undefined&&hasPermission("categories_manage")){
+      const i=Number(e.target.dataset.categoryName),cat=data.productCategories?.[i];if(!cat)return;
+      cat.name=e.target.value;
+      data.products.forEach(p=>{if(p.categoryId===cat.id)p.category=e.target.value});
+      mark();
+    }
+    if(e.target.dataset.subcategoryIndex!==undefined&&hasPermission("categories_manage")){
+      const ci=Number(e.target.dataset.categoryIndex),si=Number(e.target.dataset.subcategoryIndex);
+      const sub=data.productCategories?.[ci]?.subcategories?.[si];if(!sub)return;
+      sub.name=e.target.value;mark();
     }
   });
   document.addEventListener("click",e=>{
