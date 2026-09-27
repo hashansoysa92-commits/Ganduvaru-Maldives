@@ -37,7 +37,7 @@
   function closeLayer(id){
     const el=$("#"+id); if(!el)return;
     el.classList.remove("open"); el.setAttribute("aria-hidden","true");
-    if(!$(".drawer.open").length) $("#backdrop").hidden=true;
+    if(!$$(".drawer.open").length) $("#backdrop").hidden=true;
     syncLayerLock();
   }
   const esc = v => String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
