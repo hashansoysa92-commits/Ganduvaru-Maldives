@@ -147,6 +147,21 @@
 
   function renderAll(){
     data.pageOverrides=data.pageOverrides||{}; data.promotions=data.promotions||[]; data.products=data.products||[]; data.site=data.site||{};
+    data.promotionCategories=Array.isArray(data.promotionCategories)?data.promotionCategories:[];
+    if(!data.promotionCategories.length && data.promotions.length){
+      const seen=new Map();
+      data.promotions.forEach(pr=>{
+        const name=String(pr.label||"Promotion").trim()||"Promotion";
+        const key=name.toLowerCase();
+        if(!seen.has(key))seen.set(key,{id:"promo-"+slug(name),name});
+      });
+      data.promotionCategories=[...seen.values()];
+      data.promotions.forEach(pr=>{
+        const name=String(pr.label||"Promotion").trim()||"Promotion";
+        const cat=data.promotionCategories.find(x=>x.name.toLowerCase()===name.toLowerCase());
+        if(cat){pr.categoryId=cat.id;pr.label=cat.name}
+      });
+    }
     if(adminRole==="super_admin"){
       $("#siteAnnouncement").value=data.site.announcement||"";$("#siteHeroTitle").value=data.site.heroTitle||"";$("#siteHeroSubtitle").value=data.site.heroSubtitle||"";$("#siteAboutTitle").value=data.site.aboutTitle||"";$("#siteAboutText").value=data.site.aboutText||"";
       $("#contactPhone").value=data.site.contactPhone||"";$("#contactWhatsApp").value=data.site.contactWhatsApp||"";$("#contactFacebook").value=data.site.contactFacebook||"";$("#contactInstagram").value=data.site.contactInstagram||"";$("#contactTikTok").value=data.site.contactTikTok||"";
@@ -167,13 +182,29 @@
   }
   function renderPromotions(){
     if(adminRole!=="super_admin")return;
-    const opts=data.products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");
-    $("#promoProduct").innerHTML=opts||'<option value="">No products available</option>';
-    $("#promotionsList").innerHTML=(data.promotions||[]).map((pr,i)=>{
+
+    data.promotionCategories=Array.isArray(data.promotionCategories)?data.promotionCategories:[];
+    data.promotions=Array.isArray(data.promotions)?data.promotions:[];
+
+    const productOpts=data.products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");
+    $("#promoProduct").innerHTML=productOpts||'<option value="">No products available</option>';
+
+    const categoryOpts=data.promotionCategories.map(cat=>'<option value="'+esc(cat.id)+'">'+esc(cat.name)+'</option>').join("");
+    $("#promoCategorySelect").innerHTML=categoryOpts||'<option value="">Create a category first</option>';
+
+    $("#promoCategoriesList").innerHTML=data.promotionCategories.length?data.promotionCategories.map((cat,i)=>{
+      const count=data.promotions.filter(pr=>pr.categoryId===cat.id || (!pr.categoryId && String(pr.label||"").toLowerCase()===String(cat.name||"").toLowerCase())).length;
+      return '<div class="admin-row"><div style="flex:1"><input class="promo-category-admin-input" data-promo-cat-name="'+i+'" value="'+esc(cat.name)+'" /><small class="promo-category-count">'+count+' '+(count===1?'product':'products')+'</small></div><button class="danger-btn" data-del-promo-cat="'+i+'">Remove</button></div>';
+    }).join(""):'<div class="admin-row"><small>No promotion categories yet.</small></div>';
+
+    $("#promotionsList").innerHTML=data.promotions.length?data.promotions.map((pr,i)=>{
       const p=data.products.find(x=>x.id===pr.productId);
-      return '<div class="admin-row"><div><strong>'+esc(p?.name||pr.productId)+'</strong><small>'+esc(pr.label||"Promotion")+'</small></div><button class="danger-btn" data-del-promo="'+i+'">Remove</button></div>';
-    }).join("")||'<div class="admin-row"><small>No promotions selected yet.</small></div>';
+      const cat=data.promotionCategories.find(x=>x.id===pr.categoryId);
+      const label=cat?.name||pr.label||"Promotion";
+      return '<div class="admin-row"><div><strong>'+esc(p?.name||pr.productId)+'</strong><small>'+esc(label)+'</small></div><button class="danger-btn" data-del-promo="'+i+'">Remove</button></div>';
+    }).join(""):'<div class="admin-row"><small>No products assigned to promotions yet.</small></div>';
   }
+
   async function loadAdminUsers(){
     if(adminRole!=="super_admin")return;
     try{
@@ -216,6 +247,14 @@
   document.addEventListener("input",e=>{
     if(!data)return;
     if(adminRole==="super_admin"&&e.target.closest(".admin-section[data-admin-section='content'],.admin-section[data-admin-section='contact']"))mark();
+    if(adminRole==="super_admin"&&e.target.dataset.promoCatName!==undefined){
+      const i=Number(e.target.dataset.promoCatName),cat=data.promotionCategories?.[i];
+      if(!cat)return;
+      const next=e.target.value;
+      cat.name=next;
+      data.promotions.forEach(pr=>{if(pr.categoryId===cat.id)pr.label=next});
+      mark();
+    }
   });
   document.addEventListener("click",e=>{
     if(!data)return;
@@ -223,6 +262,14 @@
     const dt=e.target.closest("[data-del-tab]");if(dt&&adminRole==="super_admin"){data.tabs.splice(Number(dt.dataset.delTab),1);renderTabs();mark()}
     const ep=e.target.closest("[data-edit-product]");if(ep&&adminRole==="super_admin"){loadProductForm(Number(ep.dataset.editProduct))}
     const dp=e.target.closest("[data-del-product]");if(dp&&adminRole==="super_admin"){data.products.splice(Number(dp.dataset.delProduct),1);editingProductIndex=-1;clearProductForm();renderProducts();renderPromotions();mark()}
+    const dpc=e.target.closest("[data-del-promo-cat]");if(dpc&&adminRole==="super_admin"){
+      const i=Number(dpc.dataset.delPromoCat),cat=data.promotionCategories?.[i];if(!cat)return;
+      const used=data.promotions.filter(pr=>pr.categoryId===cat.id).length;
+      if(used&&!confirm('Remove "'+cat.name+'" and its '+used+' promotion item'+(used===1?'':'s')+'?'))return;
+      data.promotions=data.promotions.filter(pr=>pr.categoryId!==cat.id);
+      data.promotionCategories.splice(i,1);
+      renderPromotions();mark();
+    }
     const dpr=e.target.closest("[data-del-promo]");if(dpr&&adminRole==="super_admin"){data.promotions.splice(Number(dpr.dataset.delPromo),1);renderPromotions();mark()}
     const ta=e.target.closest("[data-toggle-admin]");if(ta&&adminRole==="super_admin")toggleAdmin(Number(ta.dataset.toggleAdmin),ta.dataset.next==="true");
     const ra=e.target.closest("[data-reset-admin]");if(ra&&adminRole==="super_admin")resetAdminPassword(Number(ra.dataset.resetAdmin));
@@ -276,7 +323,26 @@
     else{data.products.unshift(product);toast("Product added — publish changes to go live")}
     clearProductForm();renderProducts();renderPromotions();mark();
   };
-  $("#addPromoBtn").onclick=()=>{if(adminRole!=="super_admin")return;const id=$("#promoProduct").value;if(!id)return toast("Select a product");if(data.promotions.some(x=>x.productId===id))return toast("This product is already in promotions");data.promotions.unshift({productId:id,label:$("#promoLabel").value.trim()||"PROMOTION"});$("#promoLabel").value="";renderPromotions();mark();toast("Promotion added")};
+  $("#addPromoCategoryBtn").onclick=()=>{
+    if(adminRole!=="super_admin")return;
+    const name=$("#promoCategoryName").value.trim();
+    if(name.length<2)return toast("Enter a promotion category name");
+    if(data.promotionCategories.some(x=>String(x.name).toLowerCase()===name.toLowerCase()))return toast("This promotion category already exists");
+    data.promotionCategories.push({id:"promo-"+slug(name),name});
+    $("#promoCategoryName").value="";
+    renderPromotions();mark();toast("Promotion category added");
+  };
+  $("#promoCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#addPromoCategoryBtn").click()}});
+  $("#addPromoBtn").onclick=()=>{
+    if(adminRole!=="super_admin")return;
+    const id=$("#promoProduct").value,categoryId=$("#promoCategorySelect").value;
+    if(!id)return toast("Select a product");
+    if(!categoryId)return toast("Create and select a promotion category");
+    if(data.promotions.some(x=>x.productId===id&&x.categoryId===categoryId))return toast("This product is already in that promotion category");
+    const cat=data.promotionCategories.find(x=>x.id===categoryId);
+    data.promotions.unshift({productId:id,categoryId,label:cat?.name||"Promotion"});
+    renderPromotions();mark();toast("Product added to promotion category");
+  };
   async function createAdmin(){
     const username=$("#newAdminUsername").value.trim(),password=$("#newAdminPassword").value;
     if(!username||password.length<8)return toast("Enter a username and password of at least 8 characters");
