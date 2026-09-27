@@ -628,10 +628,18 @@
 
   async function createAdmin(){
     const username=$("#newAdminUsername").value.trim(),password=$("#newAdminPassword").value;
+    const permissions=$("#newAdminPermissions input:checked").map(x=>x.value);
     if(!username||password.length<8)return toast("Enter a username and password of at least 8 characters");
+    if(!permissions.length)return toast("Select at least one access permission");
     $("#createAdminBtn").disabled=true;
-    try{const result=await rpc("ganduvaru_admin_create_user",{p_token:sessionToken,p_username:username,p_password:password});if(!result?.ok)throw new Error(result?.message||"Could not create admin");$("#newAdminUsername").value="";$("#newAdminPassword").value="";await loadAdminUsers();toast("Product Admin created")}
-    catch(e){toast(e.message||"Could not create admin")}finally{$("#createAdminBtn").disabled=false}
+    try{
+      const result=await rpc("ganduvaru_admin_create_user_v2",{p_token:sessionToken,p_username:username,p_password:password,p_permissions:permissions});
+      if(!result?.ok)throw new Error(result?.message||"Could not create admin");
+      $("#newAdminUsername").value="";$("#newAdminPassword").value="";
+      $("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
+      await loadAdminUsers();toast("Admin created with selected access");
+    }catch(e){toast(e.message||"Could not create admin")}
+    finally{$("#createAdminBtn").disabled=false}
   }
   async function toggleAdmin(id,active){
     try{const result=await rpc("ganduvaru_admin_set_user_active",{p_token:sessionToken,p_admin_id:id,p_active:active});if(!result?.ok)throw new Error(result?.message||"Could not update admin");await loadAdminUsers();toast(active?"Admin enabled":"Admin disabled")}catch(e){toast(e.message||"Could not update admin")}
@@ -649,12 +657,12 @@
       try{
         const me=await rpc("ganduvaru_admin_me",{p_token:sessionToken});
         if(!me?.ok)throw new Error("Session expired");
-        adminRole=me.role;adminUsername=me.username;
-        sessionStorage.setItem("ganduvaru_admin_role",adminRole);sessionStorage.setItem("ganduvaru_admin_username",adminUsername);
+        adminRole=me.role;adminUsername=me.username;adminPermissions=Array.isArray(me.permissions)?me.permissions:[];
+        sessionStorage.setItem("ganduvaru_admin_role",adminRole);sessionStorage.setItem("ganduvaru_admin_username",adminUsername);sessionStorage.setItem("ganduvaru_admin_permissions",JSON.stringify(adminPermissions));
         await loadCatalog();showAdmin();
       }catch(e){
-        ["ganduvaru_admin_session","ganduvaru_admin_role","ganduvaru_admin_username"].forEach(k=>sessionStorage.removeItem(k));
-        sessionToken="";adminRole="";adminUsername="";showLogin()
+        ["ganduvaru_admin_session","ganduvaru_admin_role","ganduvaru_admin_username","ganduvaru_admin_permissions"].forEach(k=>sessionStorage.removeItem(k));
+        sessionToken="";adminRole="";adminUsername="";adminPermissions=[];showLogin()
       }
     }
   })();
