@@ -35,6 +35,10 @@
     };
     if(!intro){unlock();return}
     const editorMode=new URLSearchParams(location.search).get("editor")==="1";
+    if(!editorMode){
+      try{history.scrollRestoration="manual"}catch(e){}
+      window.scrollTo({top:0,left:0,behavior:"auto"});
+    }
     if(editorMode){
       intro.remove();
       unlock();
