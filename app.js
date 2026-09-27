@@ -744,10 +744,11 @@
     const bubble=$("#cartBubble");
     if(!bubble||bubble.dataset.bound==="1")return;
     bubble.dataset.bound="1";
+    bubble.dataset.draggable="true";
 
     const storageKey="ganduvaru_cart_bubble_position";
     const pad=10;
-    let startX=0,startY=0,startLeft=0,startTop=0,moved=false,ignoreClickUntil=0;
+    let startX=0,startY=0,startLeft=0,startTop=0,moved=false,dragging=false,ignoreClickUntil=0;
 
     const clamp=(x,min,max)=>Math.min(Math.max(x,min),Math.max(min,max));
     const place=(left,top)=>{
@@ -761,41 +762,67 @@
     };
     const save=()=>{
       const r=bubble.getBoundingClientRect();
-      localStorage.setItem(storageKey,JSON.stringify({left:r.left,top:r.top}));
+      try{localStorage.setItem(storageKey,JSON.stringify({left:r.left,top:r.top}))}catch(e){}
     };
     const restore=()=>{
       try{
         const saved=JSON.parse(localStorage.getItem(storageKey)||"null");
-        if(saved&&Number.isFinite(saved.left)&&Number.isFinite(saved.top)){
-          place(saved.left,saved.top);
-        }
+        if(saved&&Number.isFinite(saved.left)&&Number.isFinite(saved.top))place(saved.left,saved.top);
       }catch(e){}
     };
-
-    bubble.addEventListener("pointerdown",e=>{
-      if(e.button!==undefined&&e.button!==0)return;
+    const begin=(x,y)=>{
       const r=bubble.getBoundingClientRect();
-      startX=e.clientX;startY=e.clientY;startLeft=r.left;startTop=r.top;moved=false;
+      startX=x;startY=y;startLeft=r.left;startTop=r.top;moved=false;dragging=true;
       bubble.classList.add("dragging");
-      bubble.setPointerCapture?.(e.pointerId);
-    });
-    bubble.addEventListener("pointermove",e=>{
-      if(!bubble.classList.contains("dragging"))return;
-      const dx=e.clientX-startX,dy=e.clientY-startY;
-      if(Math.hypot(dx,dy)>5)moved=true;
+      bubble.setAttribute("aria-grabbed","true");
+    };
+    const move=(x,y)=>{
+      if(!dragging)return;
+      const dx=x-startX,dy=y-startY;
+      if(Math.hypot(dx,dy)>4)moved=true;
       place(startLeft+dx,startTop+dy);
-    });
-    const end=e=>{
-      if(!bubble.classList.contains("dragging"))return;
+    };
+    const finish=()=>{
+      if(!dragging)return;
+      dragging=false;
       bubble.classList.remove("dragging");
-      bubble.releasePointerCapture?.(e.pointerId);
+      bubble.setAttribute("aria-grabbed","false");
       if(moved){
         save();
-        ignoreClickUntil=performance.now()+300;
+        ignoreClickUntil=performance.now()+350;
       }
     };
-    bubble.addEventListener("pointerup",end);
-    bubble.addEventListener("pointercancel",end);
+
+    if(window.PointerEvent){
+      bubble.addEventListener("pointerdown",e=>{
+        if(e.button!==undefined&&e.button!==0)return;
+        begin(e.clientX,e.clientY);
+        bubble.setPointerCapture?.(e.pointerId);
+      });
+      bubble.addEventListener("pointermove",e=>move(e.clientX,e.clientY));
+      bubble.addEventListener("pointerup",e=>{bubble.releasePointerCapture?.(e.pointerId);finish()});
+      bubble.addEventListener("pointercancel",finish);
+    }else{
+      bubble.addEventListener("mousedown",e=>{
+        if(e.button!==0)return;
+        begin(e.clientX,e.clientY);
+        e.preventDefault();
+      });
+      document.addEventListener("mousemove",e=>move(e.clientX,e.clientY));
+      document.addEventListener("mouseup",finish);
+      bubble.addEventListener("touchstart",e=>{
+        const t=e.touches?.[0];if(!t)return;
+        begin(t.clientX,t.clientY);
+      },{passive:true});
+      bubble.addEventListener("touchmove",e=>{
+        const t=e.touches?.[0];if(!t)return;
+        move(t.clientX,t.clientY);
+        if(moved)e.preventDefault();
+      },{passive:false});
+      bubble.addEventListener("touchend",finish,{passive:true});
+      bubble.addEventListener("touchcancel",finish,{passive:true});
+    }
+
     bubble.addEventListener("click",e=>{
       if(performance.now()<ignoreClickUntil){e.preventDefault();e.stopPropagation();return}
       openLayer("cartDrawer");
