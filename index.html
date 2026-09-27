@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260927-layerhistory-audit2" />
+  <link rel="stylesheet" href="styles.css?v=20260927-commerce-checkout" />
 </head>
 <body class="storefront intro-pending">
   <div class="luxury-intro" id="luxuryIntro" role="presentation" aria-hidden="true">
@@ -304,16 +304,21 @@
       <button class="close-button modal-close" data-close="checkoutModal" aria-label="Close">×</button>
       <p class="eyebrow">CHECKOUT</p>
       <h3>Complete your order.</h3>
-      <div class="checkout-user" id="checkoutUser"></div>
-      <label>Delivery / pickup details<textarea id="deliveryDetails" rows="3" placeholder="Island / address / boat name / pickup request"></textarea></label>
-      <label>Order notes<textarea id="orderNotes" rows="2" placeholder="Optional notes"></textarea></label>
+      <p class="modal-copy">Enter the customer details below. Your order will be recorded securely and sent to the Ganduvaru team.</p>
+      <div class="checkout-customer-grid">
+        <label>Customer Name<input id="checkoutCustomerName" type="text" autocomplete="name" placeholder="Full name" /></label>
+        <label>Contact Number<input id="checkoutCustomerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+960 7XXXXXX" /></label>
+      </div>
+      <label>Address / Delivery Details<textarea id="checkoutAddress" rows="3" autocomplete="street-address" placeholder="Island, address, building / room, boat name or pickup details"></textarea></label>
+      <label>Order Notes<textarea id="orderNotes" rows="2" placeholder="Optional notes"></textarea></label>
       <div class="payment-options">
         <label><input type="radio" name="payment" value="Pay on confirmation" checked /> Pay on confirmation</label>
         <label><input type="radio" name="payment" value="Bank transfer" /> Bank transfer</label>
         <label><input type="radio" name="payment" value="Pickup" /> Pickup</label>
       </div>
-      <button class="primary-cta full" id="placeOrderButton">Place order via WhatsApp</button>
-      <p class="fine-print">This checkout sends the order to Ganduvaru for stock and payment confirmation. No card details are collected on this website.</p>
+      <button class="primary-cta full" id="placeOrderButton">Submit Order</button>
+      <p class="order-submit-status" id="orderSubmitStatus" role="status" aria-live="polite"></p>
+      <p class="fine-print">Orders are recorded for the Ganduvaru team. Stock, delivery and final payment are confirmed after submission. No card details are collected on this website.</p>
     </div>
   </section>
 
@@ -345,6 +350,6 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="config.js?v=20260927-luxury-audit"></script>
-  <script src="app.js?v=20260927-layerhistory-audit2"></script>
+  <script src="app.js?v=20260927-commerce-checkout"></script>
 </body>
 </html>
