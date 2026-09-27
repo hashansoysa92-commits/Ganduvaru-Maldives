@@ -112,20 +112,33 @@
   }
   function applyRoleUI(){
     const superAdmin=adminRole==="super_admin";
-    $$("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
-    $("#adminRoleBadge").textContent=superAdmin?"SUPER ADMIN":"PRODUCT ADMIN";
+    $("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
+    $("[data-permission]").forEach(el=>el.hidden=!hasPermission(el.dataset.permission));
+    $("[data-permission-any]").forEach(el=>el.hidden=!hasAnyPermission(String(el.dataset.permissionAny||"").split(",").filter(Boolean)));
+    $("#adminRoleBadge").textContent=superAdmin?"SUPER ADMIN":"ADMIN";
     $("#adminStatus").textContent=adminUsername||"Secure session";
-    if(!superAdmin){
-      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x.dataset.adminTab==="products"));
-      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection==="products"));
-      $("#productAccessNote").textContent="Product Admin access: you can add new products only. New products are published immediately.";
-    } else {
-      $("#productAccessNote").textContent="Add products with multiple photos. Put one image URL on each line. Super Admin can also edit or remove existing products.";
+
+    const visibleTabs=$("[data-admin-tab]").filter(x=>!x.hidden);
+    let active=visibleTabs.find(x=>x.classList.contains("active"))||visibleTabs[0];
+    if(active){
+      $("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===active));
+      $("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===active.dataset.adminTab));
     }
+
+    const abilities=[
+      hasPermission("products_add")?"add":null,
+      hasPermission("products_edit")?"edit":null,
+      hasPermission("products_delete")?"delete":null
+    ].filter(Boolean);
+    $("#productAccessNote").textContent=superAdmin
+      ?"Full product access. Products are grouped by category and can include multiple photos."
+      :("Product access: "+(abilities.length?abilities.join(", "):"view only")+".");
+    $("#addProductBtn").hidden=!hasPermission("products_add")&&!hasPermission("products_edit");
   }
   function showAdmin(){
     $("#loginBox").hidden=true; $("#adminApp").hidden=false; applyRoleUI(); renderAll();
     if(adminRole==="super_admin") loadAdminUsers();
+    if(hasPermission("orders_view")) loadOrders();
   }
   function showLogin(){
     $("#adminApp").hidden=true; $("#loginBox").hidden=false;
@@ -137,18 +150,19 @@
     try{
       const result=await rpc("ganduvaru_admin_login",{p_username:username,p_password:password});
       if(!result?.ok||!result?.token) throw new Error(result?.message||"Invalid username or password");
-      sessionToken=result.token; adminRole=result.role||"product_admin"; adminUsername=result.username||username;
+      sessionToken=result.token; adminRole=result.role||"product_admin"; adminUsername=result.username||username; adminPermissions=Array.isArray(result.permissions)?result.permissions:[];
       sessionStorage.setItem("ganduvaru_admin_session",sessionToken);
       sessionStorage.setItem("ganduvaru_admin_role",adminRole);
       sessionStorage.setItem("ganduvaru_admin_username",adminUsername);
+      sessionStorage.setItem("ganduvaru_admin_permissions",JSON.stringify(adminPermissions));
       $("#passwordInput").value="";
       await loadCatalog(); showAdmin(); toast(adminRole==="super_admin"?"Super Admin login successful":"Product Admin login successful");
     }catch(e){toast(e.message||"Login failed")}
     finally{$("#loginBtn").disabled=false}
   }
   async function logout(){
-    const t=sessionToken; sessionToken=""; adminRole=""; adminUsername="";
-    ["ganduvaru_admin_session","ganduvaru_admin_role","ganduvaru_admin_username"].forEach(k=>sessionStorage.removeItem(k));
+    const t=sessionToken; sessionToken=""; adminRole=""; adminUsername="";adminPermissions=[];
+    ["ganduvaru_admin_session","ganduvaru_admin_role","ganduvaru_admin_username","ganduvaru_admin_permissions"].forEach(k=>sessionStorage.removeItem(k));
     try{if(t)await rpc("ganduvaru_admin_logout",{p_token:t})}catch(e){}
     data=null; showLogin(); $("#passwordInput").value=""; toast("Logged out");
   }
