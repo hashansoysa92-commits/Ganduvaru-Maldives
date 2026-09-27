@@ -29,21 +29,43 @@
 
   function initLuxuryIntro(){
     const intro=$("#luxuryIntro");
-    if(!intro){document.body.classList.remove("intro-pending");return}
+    const unlock=()=>{
+      document.body.classList.remove("intro-pending");
+      document.documentElement.classList.remove("intro-pending");
+    };
+    if(!intro){unlock();return}
     const editorMode=new URLSearchParams(location.search).get("editor")==="1";
     if(editorMode){
       intro.remove();
-      document.body.classList.remove("intro-pending");
+      unlock();
       return;
     }
+
+    // Keep the document itself in native scrolling mode. Block gestures only on the
+    // temporary intro overlay so Safari/iOS/trackpads never inherit a stuck body lock.
+    const blockIntroGesture=e=>e.preventDefault();
+    intro.addEventListener("wheel",blockIntroGesture,{passive:false});
+    intro.addEventListener("touchmove",blockIntroGesture,{passive:false});
+
     const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const exitDelay=reduced?180:2850;
     const removeDelay=reduced?360:3700;
-    window.setTimeout(()=>{
+    let cleaned=false;
+    const cleanup=()=>{
+      if(cleaned)return;
+      cleaned=true;
+      unlock();
       intro.classList.add("intro-exit");
-      document.body.classList.remove("intro-pending");
-    },exitDelay);
-    window.setTimeout(()=>intro.remove(),removeDelay);
+      intro.removeEventListener("wheel",blockIntroGesture);
+      intro.removeEventListener("touchmove",blockIntroGesture);
+    };
+
+    window.setTimeout(cleanup,exitDelay);
+    window.setTimeout(()=>{cleanup();intro.remove()},removeDelay);
+
+    // Defensive unlocks for tab restore / bfcache / throttled timers.
+    window.addEventListener("pageshow",unlock,{once:true});
+    document.addEventListener("visibilitychange",()=>{if(!document.hidden&&performance.now()>exitDelay)cleanup()},{once:true});
   }
 
   function contactIcon(type){
