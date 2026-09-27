@@ -299,7 +299,7 @@
   }
 
   function renderPromotions(){
-    if(adminRole!=="super_admin")return;
+    if(!hasPermission("promotions_manage"))return;
 
     data.promotionCategories=Array.isArray(data.promotionCategories)?data.promotionCategories:[];
     data.promotions=Array.isArray(data.promotions)?data.promotions:[];
@@ -331,10 +331,50 @@
       adminUsers=result.users||[];renderAdminUsers();
     }catch(e){toast(e.message||"Could not load admins")}
   }
+
   function renderAdminUsers(){
     const box=$("#adminsList");if(!box)return;
-    box.innerHTML=adminUsers.map(u=>'<div class="admin-row"><div><strong>'+esc(u.username)+'</strong><small>'+(u.role==="super_admin"?"Super Admin":"Product Admin")+' · '+(u.active?"Active":"Disabled")+'</small></div><div class="admin-row-actions"><button class="mini-btn" data-reset-admin="'+u.id+'">Reset password</button>'+(u.role!=="super_admin"?'<button class="'+(u.active?"danger-btn":"mini-btn")+'" data-toggle-admin="'+u.id+'" data-next="'+(!u.active)+'">'+(u.active?"Disable":"Enable")+'</button>':"")+'</div></div>').join("");
+    const keys=Object.keys(permissionLabels);
+    box.innerHTML=adminUsers.map(u=>{
+      const perms=Array.isArray(u.permissions)?u.permissions:[];
+      const chips=(u.role==="super_admin"?["Full access"]:perms.map(p=>permissionLabels[p]||p)).map(x=>'<span>'+esc(x)+'</span>').join("");
+      const picker=u.role==="super_admin"?"":'<div class="permission-picker admin-user-permission-picker">'+keys.map(k=>'<label><input type="checkbox" data-user-permission="'+u.id+'" value="'+k+'" '+(perms.includes(k)?"checked":"")+' /> '+esc(permissionLabels[k])+'</label>').join("")+'</div>';
+      const actions='<div class="admin-row-actions"><button class="mini-btn" data-reset-admin="'+u.id+'">Reset password</button>'+(u.role!=="super_admin"?'<button class="mini-btn" data-save-admin-permissions="'+u.id+'">Save access</button><button class="'+(u.active?"danger-btn":"mini-btn")+'" data-toggle-admin="'+u.id+'" data-next="'+(!u.active)+'">'+(u.active?"Disable":"Enable")+'</button>':"")+'</div>';
+      return '<div class="admin-row admin-user-card"><div style="flex:1"><strong>'+esc(u.username)+'</strong><small>'+(u.role==="super_admin"?"Super Admin":"Admin")+' · '+(u.active?"Active":"Disabled")+'</small><div class="admin-user-permissions">'+chips+'</div>'+picker+'</div>'+actions+'</div>';
+    }).join("");
   }
+
+  async function saveAdminPermissions(id){
+    const checks=$$('input[data-user-permission="'+id+'"]:checked');
+    const permissions=checks.map(x=>x.value);
+    try{
+      const result=await rpc("ganduvaru_admin_set_user_permissions",{p_token:sessionToken,p_admin_id:id,p_permissions:permissions});
+      if(!result?.ok)throw new Error(result?.message||"Could not update access");
+      await loadAdminUsers();toast("Admin access updated");
+    }catch(e){toast(e.message||"Could not update access")}
+  }
+
+  async function loadOrders(){
+    if(!hasPermission("orders_view"))return;
+    const box=$("#ordersList");if(box)box.innerHTML='<div class="admin-row"><small>Loading orders…</small></div>';
+    try{
+      const result=await rpc("ganduvaru_admin_list_orders",{p_token:sessionToken,p_limit:300});
+      if(!result?.ok)throw new Error(result?.message||"Could not load orders");
+      adminOrders=result.orders||[];renderOrders();
+    }catch(e){if(box)box.innerHTML='<div class="admin-row"><small>'+esc(e.message||"Could not load orders")+'</small></div>';toast(e.message||"Could not load orders")}
+  }
+
+  function renderOrders(){
+    const box=$("#ordersList"),summary=$("#ordersSummary");if(!box)return;
+    const newCount=adminOrders.filter(x=>String(x.status||"New").toLowerCase()==="new").length;
+    const totalKnown=adminOrders.reduce((n,o)=>n+(Number(o.totalMvr)||0),0);
+    if(summary)summary.innerHTML='<span>'+adminOrders.length+' total orders</span><span>'+newCount+' new</span><span>MVR '+totalKnown.toLocaleString()+' listed total</span>';
+    box.innerHTML=adminOrders.length?adminOrders.map(o=>{
+      const date=o.createdAt?new Date(o.createdAt).toLocaleString():"";
+      return '<div class="admin-row order-admin-card"><div><strong>'+esc(o.orderCode||("Order #"+o.id))+' · '+esc(o.customerName)+'</strong><small>'+esc(o.contactNumber)+' · '+esc(date)+'</small><address>'+esc(o.address)+'</address><div class="order-admin-items">'+esc(o.itemSummary||"")+'</div><div class="order-admin-meta"><span>'+esc(o.paymentMethod||"")+'</span><span>'+(o.totalMvr==null?"Total: Ask for price":"Total: MVR "+Number(o.totalMvr).toLocaleString())+'</span><span>'+esc(o.status||"New")+'</span></div></div><a class="mini-btn" href="tel:'+esc(String(o.contactNumber||"").replace(/[^+0-9]/g,""))+'">Call</a></div>';
+    }).join(""):'<div class="admin-row"><small>No online orders yet.</small></div>';
+  }
+
   function syncContent(){
     data.site=data.site||{};
     data.site.announcement=$("#siteAnnouncement").value;
