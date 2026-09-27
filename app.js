@@ -13,6 +13,18 @@
     "Skincare":"◫","Beauty":"✤"
   }[c]||"G");
   function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("show"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2200); }
+  async function publicRpc(name,payload){
+    const sb=CFG.supabase||{};
+    if(!sb.url||!sb.key)throw new Error("Ordering service is unavailable");
+    const r=await fetch(sb.url+"/rest/v1/rpc/"+name,{
+      method:"POST",
+      headers:{apikey:sb.key,"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+    const body=await r.json().catch(()=>null);
+    if(!r.ok)throw new Error(body?.message||body?.error_description||"Order request failed");
+    return body;
+  }
   function saveCart(){ localStorage.setItem("ganduvaru_cart",JSON.stringify(state.cart)); renderCart(); }
   let layerScrollY=0;
   const historyLayers=new Set(["cartDrawer","productModal"]);
@@ -143,10 +155,10 @@
   function contactIcon(type){
     const icons={
       phone:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 2.8 9.3 7c.4.6.3 1.3-.2 1.8l-1.6 1.5c1.1 2.3 3 4.2 5.3 5.3l1.5-1.6c.5-.5 1.2-.6 1.8-.2l4.2 2.7c.6.4.8 1.1.6 1.8-.5 1.6-2 2.7-3.7 2.7C9.4 21 3 14.6 3 6.8c0-1.7 1.1-3.2 2.7-3.7.7-.2 1.4.1 1.8.7Z" fill="none"/></svg>',
-      whatsapp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" d="M20.4 11.9a8.35 8.35 0 0 1-12.25 7.38L3.6 20.45l1.2-4.38A8.35 8.35 0 1 1 20.4 11.9Z"/><path style="fill:currentColor;stroke:none" d="M8.15 7.45c.2-.42.43-.43.72-.43h.37c.2 0 .4.08.53.45l.78 1.9c.1.28.08.5-.1.72l-.58.73c-.2.23-.2.43-.03.73.7 1.18 1.62 2.08 2.8 2.7.3.17.5.15.7-.1l.78-.95c.2-.27.48-.3.78-.17l1.9.88c.33.15.43.28.43.48 0 .3-.13 1.22-.65 1.72-.5.48-1.25.82-2.02.82-.6 0-1.3-.2-2.2-.58-1.28-.52-2.65-1.42-3.8-2.62-1.05-1.1-1.98-2.55-2.42-3.78-.35-.95-.42-1.65-.22-2.18.12-.33.42-.72.72-1.05Z"/></svg>',
-      facebook:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.1 21v-8h2.8l.4-3h-3.2V8.1c0-.9.3-1.6 1.7-1.6h1.7V3.8c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2H8v3h2.8v8h3.3Z" stroke="none"/></svg>',
-      instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none"/><circle cx="12" cy="12" r="4" fill="none"/><circle cx="17.5" cy="6.7" r="1" stroke="none"/></svg>',
-      tiktok:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.3 3v10.8a4.6 4.6 0 1 1-3.9-4.6v3.1a1.7 1.7 0 1 0 1 1.5V3h2.9Zm0 0c.3 2.3 1.7 3.8 4 4.2v3c-1.6-.1-3-.7-4-1.6" fill="none"/></svg>'
+      whatsapp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.52 3.49A11.86 11.86 0 0 0 12.07 0C5.49 0 .14 5.35.14 11.93c0 2.1.55 4.15 1.59 5.95L.04 24l6.26-1.64a11.9 11.9 0 0 0 5.77 1.47h.01c6.58 0 11.93-5.35 11.93-11.93 0-3.19-1.24-6.19-3.49-8.41ZM12.08 21.8h-.01a9.85 9.85 0 0 1-5.02-1.37l-.36-.21-3.71.97.99-3.62-.23-.37a9.86 9.86 0 0 1-1.51-5.27c0-5.44 4.43-9.87 9.88-9.87a9.8 9.8 0 0 1 6.98 2.9 9.8 9.8 0 0 1 2.89 6.98c-.01 5.44-4.44 9.86-9.9 9.86Zm5.42-7.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.91-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.06 2.88 1.21 3.08c.15.2 2.09 3.19 5.06 4.47.71.31 1.26.49 1.69.63.71.23 1.36.19 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z" stroke="none"/></svg>',
+      facebook:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.03 1.79-4.7 4.54-4.7 1.32 0 2.7.24 2.7.24v2.98h-1.52c-1.49 0-1.96.93-1.96 1.89v2.25h3.34l-.53 3.49h-2.81V24C19.61 23.1 24 18.1 24 12.07Z" stroke="none"/></svg>',
+      instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8Zm9.45 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" stroke="none"/></svg>',
+      tiktok:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 2h3.1c.22 1.65 1.17 3.05 2.5 3.92A6.55 6.55 0 0 0 23 7.06v3.14a9.55 9.55 0 0 1-5.49-1.77v7.62A6.95 6.95 0 1 1 11.52 9.2v3.2a3.81 3.81 0 1 0 2.88 3.69V2Z" stroke="none"/></svg>'
     };
     return icons[type]||"";
   }
@@ -217,7 +229,7 @@
     let list=[...state.products];
     if(state.filter!=="All") list=list.filter(p=>p.category===state.filter);
     const q=state.search.trim().toLowerCase();
-    if(q) list=list.filter(p=>[p.name,p.category,p.description].join(" ").toLowerCase().includes(q));
+    if(q) list=list.filter(p=>[p.name,p.category,p.subcategory,p.description].join(" ").toLowerCase().includes(q));
     if(state.sort==="price-asc") list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));
     if(state.sort==="price-desc") list.sort((a,b)=>(b.price??-1)-(a.price??-1));
     if(state.sort==="name") list.sort((a,b)=>a.name.localeCompare(b.name));
@@ -231,14 +243,16 @@
       const imgs=productImages(p);
       const media=productMedia(p);
       const photoCount=imgs.length>1?'<span class="photo-count">'+imgs.length+' photos</span>':"";
-      return `<article class="product-card commerce-card" data-product="${esc(p.id)}" data-open-product="${esc(p.id)}" tabindex="0" aria-label="View ${esc(p.name)}">
-        <div class="product-media">${media}${p.badge?'<span class="product-badge">'+esc(p.badge)+'</span>':""}${photoCount}</div>
+      const out=p.availability==="out_of_stock";
+      const categoryLabel=[p.category,p.subcategory].filter(Boolean).join(" / ")||"Ganduvaru";
+      return `<article class="product-card commerce-card${out?" product-out-of-stock":""}" data-product="${esc(p.id)}" data-open-product="${esc(p.id)}" tabindex="0" aria-label="View ${esc(p.name)}">
+        <div class="product-media">${media}${p.badge?'<span class="product-badge">'+esc(p.badge)+'</span>':""}${photoCount}${out?'<span class="stock-overlay">OUT OF STOCK</span>':""}</div>
         <div class="product-info">
-          <span class="product-store">${esc(p.category||"Ganduvaru")}</span>
+          <span class="product-store">${esc(categoryLabel)}</span>
           <h3>${esc(p.name)}</h3>
           <p>${esc(p.description||"")}</p>
-          <span class="product-stock">${esc(p.stock||"Ask for stock")}</span>
-          <div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add-button" data-add="${esc(p.id)}">Add to bag</button></div>
+          <span class="product-stock ${out?"out":""}">${out?"Out of Stock":esc(p.stock||"In Stock")}</span>
+          <div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add-button" data-add="${esc(p.id)}" ${out?"disabled":""}>${out?"Out of stock":"Add to bag"}</button></div>
           <button class="quick-view" data-open-product="${esc(p.id)}">View details</button>
         </div></article>`;
     }).join("");
@@ -353,10 +367,14 @@
   function populateProduct(id){
     const p=state.products.find(x=>x.id===id); if(!p)return false;
     activeProductId=id;activePhotoIndex=0;
-    $("#productDetailStore").textContent=p.category||"Ganduvaru";
+    $("#productDetailStore").textContent=[p.category,p.subcategory].filter(Boolean).join(" / ")||"Ganduvaru";
     $("#productDetailName").textContent=p.name;
     $("#productDetailPrice").textContent=money(p.price);
-    $("#productDetailStock").textContent=p.stock||"Ask for stock";
+    const out=p.availability==="out_of_stock";
+    $("#productDetailStock").textContent=out?"Out of Stock":(p.stock||"In Stock");
+    $("#productDetailStock").classList.toggle("out",out);
+    $("#productDetailAdd").disabled=out;
+    $("#productDetailAdd").textContent=out?"Out of Stock":"Add to bag";
     $("#productDetailDescription").textContent=p.description||"";
     const badge=$("#productDetailBadge");
     badge.hidden=!p.badge;badge.textContent=p.badge||"";
@@ -389,6 +407,7 @@
 
   function addToCart(id){
     const p=state.products.find(x=>x.id===id); if(!p) return;
+    if(p.availability==="out_of_stock"){toast("This product is currently out of stock");return}
     const line=state.cart.find(x=>x.id===id); if(line) line.qty++; else state.cart.push({id,qty:1});
     saveCart(); toast("Added to bag");
   }
@@ -409,7 +428,10 @@
   }
   function updateAccount(){
     $("#accountButton").textContent=state.user ? state.user.name.split(" ")[0] : "Sign in";
-    $("#checkoutUser").textContent=state.user ? state.user.name+" · "+state.user.phone : "";
+    if(state.user){
+      if($("#checkoutCustomerName")&&!$("#checkoutCustomerName").value)$("#checkoutCustomerName").value=state.user.name||"";
+      if($("#checkoutCustomerPhone")&&!$("#checkoutCustomerPhone").value)$("#checkoutCustomerPhone").value=state.user.phone||"";
+    }
   }
 
   async function requestOtp(){
@@ -437,25 +459,88 @@
     if(!ok){ toast("Incorrect OTP"); return; }
     state.user={name:state.pendingOtp.name,phone:state.pendingOtp.phone,verifiedAt:new Date().toISOString()};
     localStorage.setItem("ganduvaru_user",JSON.stringify(state.user)); updateAccount(); closeLayer("authModal"); toast("Signed in successfully");
-    if(state.cart.length) setTimeout(()=>openLayer("checkoutModal"),180);
+
   }
 
   function checkout(){
     if(!state.cart.length){ toast("Your bag is empty"); return; }
+    const unavailable=state.cart.map(x=>state.products.find(p=>p.id===x.id)).filter(p=>p?.availability==="out_of_stock");
+    if(unavailable.length){toast(unavailable[0].name+" is out of stock");return}
     closeLayer("cartDrawer",{historyMode:"replace"});
-    if(!state.user){ openLayer("authModal",{historyMode:"none"}); return; }
-    updateAccount(); openLayer("checkoutModal",{historyMode:"none"});
+    updateAccount();
+    $("#orderSubmitStatus").textContent="";
+    openLayer("checkoutModal",{historyMode:"none"});
   }
 
-  function placeOrder(){
-    const details=$("#deliveryDetails").value.trim(); if(!details){ toast("Add delivery or pickup details"); return; }
+  async function placeOrder(){
+    const name=$("#checkoutCustomerName").value.trim();
+    const contact=$("#checkoutCustomerPhone").value.trim();
+    const address=$("#checkoutAddress").value.trim();
     const payment=document.querySelector('input[name="payment"]:checked')?.value||"Pay on confirmation";
     const notes=$("#orderNotes").value.trim();
-    const lines=state.cart.map(c=>{const p=state.products.find(x=>x.id===c.id);return p?("- "+p.name+" x"+c.qty+" — "+money(p.price==null?null:p.price*c.qty)):null}).filter(Boolean);
-    const total=state.cart.reduce((n,c)=>{const p=state.products.find(x=>x.id===c.id);return n+(p?.price||0)*c.qty},0);
-    const msg=["GANDUVARU ONLINE ORDER","","Customer: "+state.user.name,"Mobile: "+state.user.phone,"","Items:",...lines,"","Listed subtotal: "+money(total),"Method: "+payment,"Delivery/Pickup: "+details,notes?"Notes: "+notes:"","", "Please confirm stock, delivery and final payment."].filter(Boolean).join("\n");
-    const number=state.data.site.contactWhatsApp||state.data.site.orderWhatsApp||"9607969050";
-    window.open("https://wa.me/"+digits(number)+"?text="+encodeURIComponent(msg),"_blank","noopener");
+    const status=$("#orderSubmitStatus");
+
+    if(name.length<2){toast("Enter the customer name");$("#checkoutCustomerName").focus();return}
+    if(digits(contact).length<7){toast("Enter a valid contact number");$("#checkoutCustomerPhone").focus();return}
+    if(address.length<3){toast("Enter the address or delivery details");$("#checkoutAddress").focus();return}
+    if(!state.cart.length){toast("Your bag is empty");return}
+
+    const btn=$("#placeOrderButton");
+    btn.disabled=true;btn.textContent="Submitting…";
+    status.textContent="Recording your order…";
+
+    try{
+      const items=state.cart.map(x=>({id:x.id,qty:x.qty}));
+      const result=await publicRpc("ganduvaru_create_order",{p_order:{
+        customerName:name,
+        contactNumber:contact,
+        address,
+        items,
+        paymentMethod:payment,
+        notes
+      }});
+      if(!result?.ok)throw new Error(result?.message||"Could not submit order");
+
+      const lines=state.cart.map(ci=>{
+        const p=state.products.find(x=>x.id===ci.id);
+        return p?("- "+p.name+" x"+ci.qty+" — "+money(p.price==null?null:p.price*ci.qty)):null
+      }).filter(Boolean);
+      const total=result.total==null?"Ask for price":money(result.total);
+      const msg=[
+        "GANDUVARU ONLINE ORDER",
+        "Order: "+result.orderCode,
+        "",
+        "Customer: "+name,
+        "Contact: "+contact,
+        "Address: "+address,
+        "",
+        "Items:",...lines,
+        "",
+        "Listed total: "+total,
+        "Payment: "+payment,
+        notes?"Notes: "+notes:"",
+        "",
+        "Please confirm stock, delivery and final payment."
+      ].filter(Boolean).join("\n");
+
+      state.cart=[];saveCart();
+      status.textContent="Order "+result.orderCode+" submitted successfully.";
+      toast("Order submitted successfully");
+
+      const number=state.data.site.orderWhatsApp||state.data.site.contactWhatsApp||"";
+      if(number){
+        const whatsappUrl="https://wa.me/"+digits(number)+"?text="+encodeURIComponent(msg);
+        window.setTimeout(()=>window.open(whatsappUrl,"_blank","noopener"),180);
+      }
+
+      window.setTimeout(()=>closeLayer("checkoutModal",{historyMode:"replace"}),850);
+    }catch(e){
+      console.error(e);
+      status.textContent=e.message||"Could not submit order. Please try again.";
+      toast(e.message||"Could not submit order");
+    }finally{
+      btn.disabled=false;btn.textContent="Submit Order";
+    }
   }
 
 
