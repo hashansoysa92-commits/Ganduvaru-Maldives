@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260927-autohide-audit2" />
+  <link rel="stylesheet" href="styles.css?v=20260927-promo-categories" />
 </head>
 <body class="storefront intro-pending">
   <div class="luxury-intro" id="luxuryIntro" role="presentation" aria-hidden="true">
@@ -58,10 +58,11 @@
   <section class="promotion-zone" id="promotionZone" hidden aria-label="Current promotions">
     <div class="section-shell">
       <div class="promotion-heading">
-        <div><p class="eyebrow">PROMOTIONS</p><h2>Deals worth a closer look.</h2></div>
-        <span>Swipe or scroll to explore</span>
+        <p class="promotion-title-highlight">PROMOTIONS</p>
+        <h2>Choose an offer. Discover what’s inside.</h2>
       </div>
-      <div class="promotion-track" id="promotionTrack"></div>
+      <div class="promotion-category-nav" id="promotionCategories" role="tablist" aria-label="Promotion categories"></div>
+      <div class="promotion-track promotion-track-switching" id="promotionTrack"></div>
     </div>
   </section>
 
@@ -318,6 +319,6 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="config.js?v=20260927-luxury-audit"></script>
-  <script src="app.js?v=20260927-autohide-audit2"></script>
+  <script src="app.js?v=20260927-promo-categories"></script>
 </body>
 </html>
