@@ -168,9 +168,36 @@
   }
 
   function renderAll(){
-    data.pageOverrides=data.pageOverrides||{}; data.promotions=Array.isArray(data.promotions)?data.promotions:[]; data.products=Array.isArray(data.products)?data.products:[]; data.tabs=Array.isArray(data.tabs)?data.tabs:[]; data.site=data.site||{};
+    data.pageOverrides=data.pageOverrides||{};
+    data.promotions=Array.isArray(data.promotions)?data.promotions:[];
+    data.products=Array.isArray(data.products)?data.products:[];
+    data.tabs=Array.isArray(data.tabs)?data.tabs:[];
+    data.site=data.site||{};
     data.promotionCategories=Array.isArray(data.promotionCategories)?data.promotionCategories:[];
-    if(!data.promotionCategories.length && data.promotions.length){
+    data.productCategories=Array.isArray(data.productCategories)?data.productCategories:[];
+
+    if(!data.productCategories.length&&data.products.length){
+      const seen=new Map();
+      data.products.forEach(p=>{
+        const name=String(p.category||"Other").trim()||"Other";
+        const key=name.toLowerCase();
+        if(!seen.has(key))seen.set(key,{id:slug(name),name,subcategories:[]});
+      });
+      data.productCategories=[...seen.values()];
+    }
+    data.productCategories.forEach(cat=>{
+      cat.subcategories=Array.isArray(cat.subcategories)?cat.subcategories:[];
+    });
+    data.products.forEach(p=>{
+      if(!p.categoryId){
+        const cat=data.productCategories.find(x=>String(x.name).toLowerCase()===String(p.category||"").toLowerCase());
+        if(cat)p.categoryId=cat.id;
+      }
+      if(!p.availability)p.availability=/out of stock/i.test(p.stock||"")?"out_of_stock":"in_stock";
+      p.stock=p.availability==="out_of_stock"?"Out of Stock":(p.stock&& !/out of stock/i.test(p.stock)?p.stock:"In Stock");
+    });
+
+    if(!data.promotionCategories.length&&data.promotions.length){
       const seen=new Map();
       data.promotions.forEach(pr=>{
         const name=String(pr.label||"Promotion").trim()||"Promotion";
@@ -184,24 +211,93 @@
         if(cat){pr.categoryId=cat.id;pr.label=cat.name}
       });
     }
-    if(adminRole==="super_admin"){
-      $("#siteAnnouncement").value=data.site.announcement||"";$("#siteHeroTitle").value=data.site.heroTitle||"";$("#siteHeroSubtitle").value=data.site.heroSubtitle||"";$("#siteAboutTitle").value=data.site.aboutTitle||"";$("#siteAboutText").value=data.site.aboutText||"";
-      $("#contactPhone").value=data.site.contactPhone||"";$("#contactWhatsApp").value=data.site.contactWhatsApp||"";$("#contactFacebook").value=data.site.contactFacebook||"";$("#contactInstagram").value=data.site.contactInstagram||"";$("#contactTikTok").value=data.site.contactTikTok||"";
-      renderTabs();renderPromotions();
+
+    if(hasPermission("site_content_manage")){
+      $("#siteAnnouncement").value=data.site.announcement||"";
+      $("#siteHeroTitle").value=data.site.heroTitle||"";
+      $("#siteHeroSubtitle").value=data.site.heroSubtitle||"";
+      $("#siteAboutTitle").value=data.site.aboutTitle||"";
+      $("#siteAboutText").value=data.site.aboutText||"";
+      renderTabs();
     }
+    if(hasPermission("contact_manage")){
+      $("#contactPhone").value=data.site.contactPhone||"";
+      $("#contactWhatsApp").value=data.site.contactWhatsApp||"";
+      $("#contactFacebook").value=data.site.contactFacebook||"";
+      $("#contactInstagram").value=data.site.contactInstagram||"";
+      $("#contactTikTok").value=data.site.contactTikTok||"";
+      $("#orderEmail").value=data.site.orderEmail||"";
+      $("#orderWhatsApp").value=data.site.orderWhatsApp||data.site.contactWhatsApp||"";
+      $("#orderDriveFolderLink").href=data.site.orderDriveFolderUrl||"#";
+      $("#orderSheetLink").href=data.site.orderSheetUrl||"#";
+    }
+    if(hasPermission("categories_manage"))renderCategories();
+    if(hasPermission("promotions_manage"))renderPromotions();
+    renderProductSelectors();
     renderProducts();
-    if(adminRole==="super_admin") setTimeout(sendEditorData,120);
+    if(hasPermission("site_content_manage"))setTimeout(sendEditorData,120);
   }
-  function renderTabs(){$("#tabsList").innerHTML=data.tabs.map((t,i)=>'<div class="admin-row"><div><strong>'+esc(t.label)+'</strong><small>'+esc(t.href)+'</small></div><button class="danger-btn" data-del-tab="'+i+'">Remove</button></div>').join("")}
+
+  function renderTabs(){
+    const box=$("#tabsList");if(!box)return;
+    box.innerHTML=data.tabs.map((t,i)=>'<div class="admin-row"><div><strong>'+esc(t.label)+'</strong><small>'+esc(t.href)+'</small></div><button class="danger-btn" data-del-tab="'+i+'">Remove</button></div>').join("");
+  }
+
   function productImages(p){return [...new Set([...(Array.isArray(p?.images)?p.images:[]),p?.image].map(x=>String(x||"").trim()).filter(Boolean))]}
-  function renderProducts(){
-    const superAdmin=adminRole==="super_admin";
-    $("#productsList").innerHTML=data.products.map((p,i)=>{
-      const n=productImages(p).length;
-      const actions=superAdmin?'<div class="admin-row-actions"><button class="mini-btn" data-edit-product="'+i+'">Edit</button><button class="danger-btn" data-del-product="'+i+'">Remove</button></div>':"";
-      return '<div class="admin-row"><div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category||"Other")+' · '+(p.price==null?"Ask for price":"MVR "+Number(p.price).toLocaleString())+'</small><small class="admin-row-photo-count">'+n+' photo'+(n===1?"":"s")+'</small></div>'+actions+'</div>';
-    }).join("");
+
+  function categoryById(id){return data.productCategories.find(x=>x.id===id)}
+  function subcategoryById(cat,id){return cat?.subcategories?.find(x=>x.id===id)}
+
+  function renderProductSelectors(){
+    const categorySelect=$("#pCategoryId"),filter=$("#adminProductCategoryFilter");
+    const opts=data.productCategories.map(cat=>'<option value="'+esc(cat.id)+'">'+esc(cat.name)+'</option>').join("");
+    if(categorySelect){
+      const old=categorySelect.value;
+      categorySelect.innerHTML=opts||'<option value="">Create a category first</option>';
+      if(old&&data.productCategories.some(x=>x.id===old))categorySelect.value=old;
+      renderSubcategorySelect();
+    }
+    if(filter){
+      const old=filter.value||"all";
+      filter.innerHTML='<option value="all">All categories</option>'+opts;
+      if(old==="all"||data.productCategories.some(x=>x.id===old))filter.value=old;
+    }
   }
+
+  function renderSubcategorySelect(selected=""){
+    const box=$("#pSubcategoryId");if(!box)return;
+    const cat=categoryById($("#pCategoryId")?.value);
+    box.innerHTML='<option value="">No sub category</option>'+(cat?.subcategories||[]).map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join("");
+    if(selected&&cat?.subcategories?.some(x=>x.id===selected))box.value=selected;
+  }
+
+  function renderCategories(){
+    const box=$("#categoriesList");if(!box)return;
+    box.innerHTML=data.productCategories.length?data.productCategories.map((cat,i)=>{
+      const subs=(cat.subcategories||[]).map((sub,j)=>
+        '<div class="subcategory-admin-row"><input data-category-index="'+i+'" data-subcategory-index="'+j+'" value="'+esc(sub.name)+'" aria-label="Sub category name" /><button class="danger-btn" data-del-subcategory="'+i+':'+j+'">Remove</button></div>'
+      ).join("");
+      const count=data.products.filter(p=>p.categoryId===cat.id||String(p.category).toLowerCase()===String(cat.name).toLowerCase()).length;
+      return '<div class="admin-row category-admin-card"><div class="category-admin-head"><input data-category-name="'+i+'" value="'+esc(cat.name)+'" aria-label="Category name" /><span class="admin-row-photo-count">'+count+' products</span><button class="danger-btn" data-del-category="'+i+'">Remove</button></div><div class="subcategory-admin-list">'+subs+'<div class="subcategory-add-row"><input data-new-subcategory="'+i+'" placeholder="New sub category" /><button class="mini-btn" data-add-subcategory="'+i+'">Add sub category</button></div></div></div>';
+    }).join(""):'<div class="admin-row"><small>No categories yet.</small></div>';
+    renderProductSelectors();
+  }
+
+  function renderProducts(){
+    const box=$("#productsList");if(!box)return;
+    const filter=$("#adminProductCategoryFilter")?.value||"all";
+    const canEdit=hasPermission("products_edit"),canDelete=hasPermission("products_delete");
+    const list=data.products.map((p,i)=>({p,i})).filter(x=>filter==="all"||x.p.categoryId===filter);
+    $("#adminProductCount").textContent=list.length+" product"+(list.length===1?"":"s");
+    box.innerHTML=list.length?list.map(({p,i})=>{
+      const n=productImages(p).length;
+      const cat=categoryById(p.categoryId),sub=subcategoryById(cat,p.subcategoryId);
+      const catText=[cat?.name||p.category||"Other",sub?.name].filter(Boolean).join(" / ");
+      const actions=(canEdit||canDelete)?'<div class="admin-row-actions">'+(canEdit?'<button class="mini-btn" data-edit-product="'+i+'">Edit</button>':'')+(canDelete?'<button class="danger-btn" data-del-product="'+i+'">Remove</button>':'')+'</div>':"";
+      return '<div class="admin-row"><div><strong>'+esc(p.name)+'</strong><small>'+esc(catText)+' · '+(p.price==null?"Ask for price":"MVR "+Number(p.price).toLocaleString())+'</small><span class="stock-pill '+(p.availability==="out_of_stock"?"out":"in")+'">'+(p.availability==="out_of_stock"?"Out of Stock":"In Stock")+'</span><small class="admin-row-photo-count">'+n+' photo'+(n===1?"":"s")+'</small></div>'+actions+'</div>';
+    }).join(""):'<div class="admin-row"><small>No products in this category.</small></div>';
+  }
+
   function renderPromotions(){
     if(adminRole!=="super_admin")return;
 
