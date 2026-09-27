@@ -2,7 +2,7 @@
   const CFG = window.GANDUVARU_CONFIG || {};
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
-  const state = { data:null, products:[], filter:"All", search:"", sort:"featured", cart:JSON.parse(localStorage.getItem("ganduvaru_cart")||"[]"), user:JSON.parse(localStorage.getItem("ganduvaru_user")||"null"), pendingOtp:null };
+  const state = { data:null, products:[], filter:"All", search:"", sort:"featured", promotionCategory:"", cart:JSON.parse(localStorage.getItem("ganduvaru_cart")||"[]"), user:JSON.parse(localStorage.getItem("ganduvaru_user")||"null"), pendingOtp:null };
 
   const money = v => v == null ? "Ask for price" : "MVR " + Number(v).toLocaleString();
   const digits = v => (v||"").replace(/\D/g,"");
@@ -177,20 +177,84 @@
     requestAnimationFrame(()=>{applyPageOverrides();refreshLuxuryMotion();});
   }
 
+  function promotionCategoryKey(value){
+    return String(value||"promotion").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")||"promotion";
+  }
+
+  function promotionCategories(){
+    const configured=Array.isArray(state.data?.promotionCategories)?state.data.promotionCategories:[];
+    const seen=new Set();
+    const out=[];
+
+    configured.forEach(cat=>{
+      const name=String(cat?.name||"").trim();
+      if(!name)return;
+      const id=String(cat?.id||promotionCategoryKey(name));
+      if(seen.has(id))return;
+      seen.add(id);
+      out.push({id,name});
+    });
+
+    (state.data?.promotions||[]).forEach(promo=>{
+      const name=String(promo?.label||"Promotion").trim()||"Promotion";
+      const id=String(promo?.categoryId||promotionCategoryKey(name));
+      if(seen.has(id))return;
+      seen.add(id);
+      out.push({id,name});
+    });
+
+    return out;
+  }
+
+  function promoMatchesCategory(promo,categoryId){
+    const id=String(promo?.categoryId||promotionCategoryKey(promo?.label||"Promotion"));
+    return id===categoryId;
+  }
+
   function renderPromotions(){
-    const zone=$("#promotionZone"), track=$("#promotionTrack");
-    if(!zone||!track||!state.data)return;
+    const zone=$("#promotionZone"), track=$("#promotionTrack"), nav=$("#promotionCategories");
+    if(!zone||!track||!nav||!state.data)return;
+
     const promos=(state.data.promotions||[]).map((promo,i)=>{
       const product=state.data.products.find(p=>p.id===promo.productId);
       return product?{promo,product,i}:null;
     }).filter(Boolean);
-    zone.hidden=!promos.length;
-    if(!promos.length){track.innerHTML="";return}
-    track.innerHTML=promos.map(({promo,product})=>{
-      return `<article class="promotion-card" data-open-product="${esc(product.id)}" tabindex="0">
+
+    const cats=promotionCategories().map(cat=>({
+      ...cat,
+      count:promos.filter(x=>promoMatchesCategory(x.promo,cat.id)).length
+    })).filter(cat=>cat.count>0);
+
+    zone.hidden=!promos.length||!cats.length;
+    if(zone.hidden){
+      nav.innerHTML="";
+      track.innerHTML="";
+      state.promotionCategory="";
+      return;
+    }
+
+    if(!cats.some(cat=>cat.id===state.promotionCategory)){
+      state.promotionCategory=cats[0].id;
+    }
+
+    nav.innerHTML=cats.map((cat,index)=>{
+      const active=cat.id===state.promotionCategory;
+      return `<button class="promotion-category-button${active?" active":""}" type="button" role="tab" aria-selected="${active?"true":"false"}" data-promo-category="${esc(cat.id)}" style="--promo-index:${index}">
+        <span>${esc(cat.name)}</span>
+        <small>${cat.count} ${cat.count===1?"item":"items"}</small>
+      </button>`;
+    }).join("");
+
+    const activePromos=promos.filter(x=>promoMatchesCategory(x.promo,state.promotionCategory));
+
+    track.classList.remove("promotion-track-switching");
+    void track.offsetWidth;
+    track.innerHTML=activePromos.map(({promo,product},index)=>{
+      const category= cats.find(cat=>cat.id===state.promotionCategory);
+      return `<article class="promotion-card" data-open-product="${esc(product.id)}" tabindex="0" style="--promo-card-index:${index}">
         <div class="promotion-image">${productMedia(product,"promotion-product-image")}</div>
         <div class="promotion-copy">
-          <span class="promotion-kicker">${esc(promo.label||product.badge||"PROMOTION")}</span>
+          <span class="promotion-kicker">${esc(category?.name||promo.label||"PROMOTION")}</span>
           <h3>${esc(product.name)}</h3>
           <small>${esc(product.category||"Ganduvaru")}</small>
           <strong>${money(product.price)}</strong>
@@ -198,6 +262,11 @@
         </div>
       </article>`;
     }).join("");
+    track.scrollLeft=0;
+    requestAnimationFrame(()=>{
+      track.classList.add("promotion-track-switching");
+      refreshLuxuryMotion();
+    });
   }
 
   let activeProductId=null,activePhotoIndex=0;
@@ -629,6 +698,12 @@
 
   function bind(){
     document.addEventListener("click",e=>{
+      const promoCategory=e.target.closest("[data-promo-category]");
+      if(promoCategory){
+        state.promotionCategory=promoCategory.dataset.promoCategory||"";
+        renderPromotions();
+        return;
+      }
       const add=e.target.closest("[data-add]"); if(add){ e.stopPropagation(); addToCart(add.dataset.add); }
       const photo=e.target.closest("[data-detail-photo]"); if(photo){activePhotoIndex=Number(photo.dataset.detailPhoto)||0;renderDetailGallery();return;}
       const opener=e.target.closest("[data-open-product]"); if(opener&&!add){openProduct(opener.dataset.openProduct);}
