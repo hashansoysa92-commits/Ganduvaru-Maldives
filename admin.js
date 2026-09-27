@@ -146,7 +146,7 @@
   }
 
   function renderAll(){
-    data.pageOverrides=data.pageOverrides||{}; data.promotions=data.promotions||[]; data.products=data.products||[]; data.site=data.site||{};
+    data.pageOverrides=data.pageOverrides||{}; data.promotions=Array.isArray(data.promotions)?data.promotions:[]; data.products=Array.isArray(data.products)?data.products:[]; data.tabs=Array.isArray(data.tabs)?data.tabs:[]; data.site=data.site||{};
     data.promotionCategories=Array.isArray(data.promotionCategories)?data.promotionCategories:[];
     if(!data.promotionCategories.length && data.promotions.length){
       const seen=new Map();
@@ -232,7 +232,17 @@
     data.site.orderWhatsApp=data.site.contactWhatsApp;
   }
   async function save(){
-    syncContent(); $("#saveBtn").disabled=true;
+    syncContent();
+    const categoryNames=(data.promotionCategories||[]).map(x=>String(x.name||"").trim());
+    if(categoryNames.some(x=>x.length<2)){toast("Promotion category names must be at least 2 characters");return}
+    const lowered=categoryNames.map(x=>x.toLowerCase());
+    if(new Set(lowered).size!==lowered.length){toast("Promotion category names must be unique");return}
+    (data.promotionCategories||[]).forEach((cat,i)=>{cat.name=categoryNames[i]});
+    (data.promotions||[]).forEach(pr=>{
+      const cat=(data.promotionCategories||[]).find(x=>x.id===pr.categoryId);
+      if(cat)pr.label=cat.name;
+    });
+    $("#saveBtn").disabled=true;
     try{
       const result=await rpc("ganduvaru_admin_save",{p_token:sessionToken,p_data:data});
       if(!result?.ok){
