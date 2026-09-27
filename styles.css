@@ -2198,3 +2198,56 @@ body.storefront.intro-pending{
   overscroll-behavior:contain;
   touch-action:none;
 }
+
+
+/* === Smooth Direction-Aware Top Chrome === */
+.top-chrome{
+  position:sticky;
+  top:0;
+  z-index:70;
+  width:100%;
+  transform:translate3d(0,0,0);
+  opacity:1;
+  transition:
+    transform .52s cubic-bezier(.22,1,.36,1),
+    opacity .34s ease,
+    filter .34s ease;
+  will-change:transform;
+  backface-visibility:hidden;
+  contain:paint;
+}
+.top-chrome.top-chrome-hidden{
+  transform:translate3d(0,-100%,0);
+  opacity:.985;
+  pointer-events:none;
+}
+.top-chrome.top-chrome-visible{
+  transform:translate3d(0,0,0);
+  opacity:1;
+  pointer-events:auto;
+}
+.top-chrome .announcement{
+  position:relative;
+  z-index:2;
+}
+.top-chrome .site-header{
+  position:relative!important;
+  top:auto!important;
+  z-index:1;
+}
+.top-chrome.top-chrome-hidden .site-header{
+  box-shadow:none;
+}
+.top-chrome.top-chrome-revealing{
+  filter:drop-shadow(0 18px 26px rgba(0,0,0,.16));
+}
+@media(max-width:900px){
+  .top-chrome{
+    transition-duration:.42s,.28s,.28s;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .top-chrome{
+    transition:none!important;
+  }
+}
