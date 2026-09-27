@@ -3392,3 +3392,41 @@ body.ui-layer-open{
     max-width:calc((100% - 15px)/4)!important;
   }
 }
+
+
+/* === Cart Return-to-Shop Fix === */
+.storefront .cart-continue-button{
+  width:100%;
+  min-height:46px;
+  margin:10px 0 10px;
+  border:1px solid rgba(240,216,156,.20);
+  border-radius:14px;
+  color:#f1e2bd;
+  background:rgba(255,255,255,.035);
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.02em;
+  cursor:pointer;
+  transition:background .25s ease,border-color .25s ease,color .25s ease,transform .25s var(--ease-luxury);
+}
+.storefront .cart-continue-button:hover,
+.storefront .cart-continue-button:focus-visible{
+  outline:none;
+  color:#17120b;
+  background:linear-gradient(135deg,#efd69a,#c99745);
+  border-color:rgba(181,128,43,.35);
+  transform:translateY(-1px);
+}
+.storefront .cart-drawer .close-button{
+  min-width:44px;
+  min-height:44px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+}
+@media(max-width:680px){
+  .storefront .cart-continue-button{
+    min-height:48px;
+    font-size:12px;
+  }
+}
