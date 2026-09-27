@@ -486,6 +486,11 @@
     if(!state.cart.length){toast("Your bag is empty");return}
 
     const btn=$("#placeOrderButton");
+    const whatsappNumber=state.data.site.orderWhatsApp||state.data.site.contactWhatsApp||"";
+    let whatsappWindow=null;
+    if(whatsappNumber){
+      try{whatsappWindow=window.open("about:blank","_blank")}catch(e){}
+    }
     btn.disabled=true;btn.textContent="Submitting…";
     status.textContent="Recording your order…";
 
@@ -527,14 +532,15 @@
       status.textContent="Order "+result.orderCode+" submitted successfully.";
       toast("Order submitted successfully");
 
-      const number=state.data.site.orderWhatsApp||state.data.site.contactWhatsApp||"";
-      if(number){
-        const whatsappUrl="https://wa.me/"+digits(number)+"?text="+encodeURIComponent(msg);
-        window.setTimeout(()=>window.open(whatsappUrl,"_blank","noopener"),180);
+      if(whatsappNumber){
+        const whatsappUrl="https://wa.me/"+digits(whatsappNumber)+"?text="+encodeURIComponent(msg);
+        if(whatsappWindow)whatsappWindow.location.href=whatsappUrl;
+        else window.location.href=whatsappUrl;
       }
 
       window.setTimeout(()=>closeLayer("checkoutModal",{historyMode:"replace"}),850);
     }catch(e){
+      try{whatsappWindow?.close()}catch(_){}
       console.error(e);
       status.textContent=e.message||"Could not submit order. Please try again.";
       toast(e.message||"Could not submit order");
