@@ -316,5 +316,11 @@
       ]
     }
   ],
-  "promotions": []
+  "promotions": [],
+  "promotionCategories": [
+    {
+      "id": "friday-offer",
+      "name": "Friday Offer"
+    }
+  ]
 }
