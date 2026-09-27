@@ -31,14 +31,20 @@
     const el=$("#"+id); if(!el)return;
     el.classList.add("open"); el.setAttribute("aria-hidden","false");
     if(id.includes("Drawer")) $("#backdrop").hidden=false;
+    if(id==="cartDrawer" && !history.state?.ganduvaruCartOpen){
+      try{history.pushState({...history.state,ganduvaruCartOpen:true},"",location.href)}catch(e){}
+    }
     syncLayerLock();
     requestAnimationFrame(()=>el.querySelector("button,[href],input,textarea,select")?.focus({preventScroll:true}));
   }
-  function closeLayer(id){
+  function closeLayer(id,skipHistory=false){
     const el=$("#"+id); if(!el)return;
     el.classList.remove("open"); el.setAttribute("aria-hidden","true");
-    if(!$$(".drawer.open").length) $("#backdrop").hidden=true;
+    if(!$(".drawer.open").length) $("#backdrop").hidden=true;
     syncLayerLock();
+    if(id==="cartDrawer" && !skipHistory && history.state?.ganduvaruCartOpen){
+      try{history.back()}catch(e){}
+    }
   }
   const esc = v => String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
   function productImages(p){
@@ -863,6 +869,9 @@
       const openModal=document.querySelector(".modal.open");
       const openDrawer=document.querySelector(".drawer.open");
       if(openModal)closeLayer(openModal.id); else if(openDrawer)closeLayer(openDrawer.id);
+    });
+    window.addEventListener("popstate",()=>{
+      if($("#cartDrawer")?.classList.contains("open")) closeLayer("cartDrawer",true);
     });
     $("#productGrid").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-open-product]")){e.preventDefault();openProduct(e.target.dataset.openProduct)}});
     $("#promotionTrack")?.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-open-product]")){e.preventDefault();openProduct(e.target.dataset.openProduct)}});
