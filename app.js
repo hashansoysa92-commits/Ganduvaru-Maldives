@@ -32,7 +32,7 @@
 
   function syncBackdrop(){
     const backdrop=$("#backdrop");
-    if(backdrop)backdrop.hidden=!$(".drawer.open").length;
+    if(backdrop)backdrop.hidden=!document.querySelectorAll(".drawer.open").length;
   }
 
   function setLayerVisible(id,visible){
@@ -942,7 +942,7 @@
     $("#cartContinueButton").onclick=()=>closeLayer("cartDrawer");
     initCartBubble();
     $("#menuButton").onclick=()=>openLayer("menuDrawer");
-    $("#backdrop").onclick=()=>$(".drawer.open").forEach(d=>closeLayer(d.id));
+    $("#backdrop").onclick=()=>document.querySelectorAll(".drawer.open").forEach(d=>closeLayer(d.id));
     document.addEventListener("click",e=>{
       if(e.target.matches(".modal.open"))closeLayer(e.target.id);
     });
