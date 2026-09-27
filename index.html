@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260927-fullaudit2" />
+  <link rel="stylesheet" href="styles.css?v=20260927-cartbubble-mobile4" />
 </head>
 <body class="storefront intro-pending">
   <div class="luxury-intro" id="luxuryIntro" role="presentation" aria-hidden="true">
@@ -240,6 +240,15 @@
     </div>
   </footer>
 
+  <button class="cart-bubble" id="cartBubble" type="button" aria-label="Open shopping bag" title="Drag to move · Click to open bag">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3.5 5.5h2l1.7 9.1a2 2 0 0 0 2 1.7h7.4a2 2 0 0 0 1.9-1.5L20 8H7" />
+      <circle cx="9.5" cy="19" r="1.25" />
+      <circle cx="17" cy="19" r="1.25" />
+    </svg>
+    <span class="cart-bubble-count" id="cartBubbleCount">0</span>
+  </button>
+
   <div class="backdrop" id="backdrop" hidden></div>
 
   <aside class="drawer cart-drawer" id="cartDrawer" aria-hidden="true">
@@ -334,6 +343,6 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="config.js?v=20260927-luxury-audit"></script>
-  <script src="app.js?v=20260927-fullaudit2"></script>
+  <script src="app.js?v=20260927-cartbubble-mobile4"></script>
 </body>
 </html>
