@@ -16,7 +16,6 @@
   function saveCart(){ localStorage.setItem("ganduvaru_cart",JSON.stringify(state.cart)); renderCart(); }
   function openLayer(id){ $("#"+id).classList.add("open"); $("#"+id).setAttribute("aria-hidden","false"); if(id.includes("Drawer")) $("#backdrop").hidden=false; }
   function closeLayer(id){ const el=$("#"+id); el.classList.remove("open"); el.setAttribute("aria-hidden","true"); if(!$$(".drawer.open").length) $("#backdrop").hidden=true; }
-  function getStore(id){ return (state.data?.stores||[]).find(s=>s.id===id) || {}; }
   const esc = v => String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
   function productImages(p){
     const all=[...(Array.isArray(p?.images)?p.images:[]),p?.image].map(x=>String(x||"").trim()).filter(Boolean);
@@ -65,23 +64,26 @@
     const nav=d.tabs.map(t=>'<a href="'+t.href+'">'+t.label+'</a>').join("");
     $("#desktopNav").innerHTML=nav; $("#mobileNav").innerHTML=nav;
 
-    $("#storeGrid").innerHTML=d.stores.map(s=>`
-      <article class="store-card" data-store="${s.id}" style="--accent:${s.accent||"#d6b36a"}">
-        <div><div class="store-icon">${s.icon||"◇"}</div><h3>${s.name}</h3><p>${s.summary||""}</p></div>
-        <span class="store-link">Shop this store →</span>
-      </article>`).join("");
-
     renderPromotions();
 
-    $("#contactGrid").innerHTML=d.stores.map(s=>`
-      <article class="contact-card" data-store-contact="${s.id}">
-        <h3>${s.name}</h3><p>${s.address||""}</p><p>${s.phone||""}${s.whatsapp && s.whatsapp!==s.phone ? " · WhatsApp "+s.whatsapp : ""}</p>${s.email?'<p>'+s.email+'</p>':""}
-        <div class="contact-actions">
-          ${s.phone?'<a class="small-button" href="tel:'+digits(s.phone)+'">Call</a>':""}
-          ${s.whatsapp?'<a class="small-button" target="_blank" rel="noopener" href="https://wa.me/'+digits(s.whatsapp)+'">WhatsApp</a>':""}
-          ${s.facebook?'<a class="small-button" target="_blank" rel="noopener" href="'+s.facebook+'">Facebook</a>':""}
-        </div>
-      </article>`).join("");
+    const contacts=[
+      site.contactPhone ? {label:"Contact Number",value:site.contactPhone,href:"tel:"+digits(site.contactPhone),action:"Call"} : null,
+      site.contactWhatsApp ? {label:"WhatsApp Number",value:site.contactWhatsApp,href:"https://wa.me/"+digits(site.contactWhatsApp),action:"WhatsApp",external:true} : null,
+      site.contactFacebook ? {label:"Facebook",value:"Facebook",href:site.contactFacebook,action:"Open",external:true} : null,
+      site.contactInstagram ? {label:"Instagram",value:"Instagram",href:site.contactInstagram,action:"Open",external:true} : null,
+      site.contactTikTok ? {label:"TikTok",value:"TikTok",href:site.contactTikTok,action:"Open",external:true} : null
+    ].filter(Boolean);
+
+    $("#contactGrid").innerHTML=contacts.length?contacts.map(x=>`
+      <article class="contact-card contact-method">
+        <span class="contact-method-label">${esc(x.label)}</span>
+        <h3>${esc(x.value)}</h3>
+        <a class="small-button" href="${esc(x.href)}"${x.external?' target="_blank" rel="noopener"':""}>${esc(x.action)}</a>
+      </article>`).join(""):'<div class="empty-state"><strong>Contact details coming soon.</strong></div>';
+
+    [["#footerFacebook",site.contactFacebook],["#footerInstagram",site.contactInstagram],["#footerTikTok",site.contactTikTok]].forEach(([selector,url])=>{
+      const el=$(selector); if(!el)return; el.hidden=!url; if(url)el.href=url;
+    });
 
     const cats = ["All", ...new Set(d.products.map(p=>p.category).filter(Boolean))];
     $("#filters").innerHTML=cats.map(c=>'<button class="filter-chip'+(c==="All"?" active":"")+'" data-filter="'+c+'">'+c+'</button>').join("");
@@ -90,9 +92,9 @@
 
   function filtered(){
     let list=[...state.products];
-    if(state.filter!=="All") list=list.filter(p=>p.category===state.filter || p.store===state.filter);
+    if(state.filter!=="All") list=list.filter(p=>p.category===state.filter);
     const q=state.search.trim().toLowerCase();
-    if(q) list=list.filter(p=>[p.name,p.category,p.description,getStore(p.store).name].join(" ").toLowerCase().includes(q));
+    if(q) list=list.filter(p=>[p.name,p.category,p.description].join(" ").toLowerCase().includes(q));
     if(state.sort==="price-asc") list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));
     if(state.sort==="price-desc") list.sort((a,b)=>(b.price??-1)-(a.price??-1));
     if(state.sort==="name") list.sort((a,b)=>a.name.localeCompare(b.name));
@@ -103,13 +105,13 @@
   function renderProducts(){
     const list=filtered(); $("#emptyState").hidden=!!list.length;
     $("#productGrid").innerHTML=list.map(p=>{
-      const s=getStore(p.store), imgs=productImages(p);
+      const imgs=productImages(p);
       const media=productMedia(p);
       const photoCount=imgs.length>1?'<span class="photo-count">'+imgs.length+' photos</span>':"";
       return `<article class="product-card commerce-card" data-product="${esc(p.id)}" data-open-product="${esc(p.id)}" tabindex="0" aria-label="View ${esc(p.name)}">
         <div class="product-media">${media}${p.badge?'<span class="product-badge">'+esc(p.badge)+'</span>':""}${photoCount}</div>
         <div class="product-info">
-          <span class="product-store">${esc(s.name||p.store||"Ganduvaru")}</span>
+          <span class="product-store">${esc(p.category||"Ganduvaru")}</span>
           <h3>${esc(p.name)}</h3>
           <p>${esc(p.description||"")}</p>
           <span class="product-stock">${esc(p.stock||"Ask for stock")}</span>
@@ -130,13 +132,12 @@
     zone.hidden=!promos.length;
     if(!promos.length){track.innerHTML="";return}
     track.innerHTML=promos.map(({promo,product})=>{
-      const s=getStore(product.store);
       return `<article class="promotion-card" data-open-product="${esc(product.id)}" tabindex="0">
         <div class="promotion-image">${productMedia(product,"promotion-product-image")}</div>
         <div class="promotion-copy">
           <span class="promotion-kicker">${esc(promo.label||product.badge||"PROMOTION")}</span>
           <h3>${esc(product.name)}</h3>
-          <small>${esc(s.name||product.category||"Ganduvaru")}</small>
+          <small>${esc(product.category||"Ganduvaru")}</small>
           <strong>${money(product.price)}</strong>
           <span class="promotion-link">View offer →</span>
         </div>
@@ -148,8 +149,7 @@
   function openProduct(id){
     const p=state.products.find(x=>x.id===id); if(!p)return;
     activeProductId=id;activePhotoIndex=0;
-    const s=getStore(p.store);
-    $("#productDetailStore").textContent=s.name||p.store||"Ganduvaru";
+    $("#productDetailStore").textContent=p.category||"Ganduvaru";
     $("#productDetailName").textContent=p.name;
     $("#productDetailPrice").textContent=money(p.price);
     $("#productDetailStock").textContent=p.stock||"Ask for stock";
@@ -357,7 +357,6 @@
       [".hero-copy > *",0],
       [".hero-visual",80],
       [".section-heading",0],
-      [".store-card",45],
       [".promotion-card",28],
       [".product-card",35],
       [".service-grid article",55],
@@ -419,7 +418,6 @@
       const photo=e.target.closest("[data-detail-photo]"); if(photo){activePhotoIndex=Number(photo.dataset.detailPhoto)||0;renderDetailGallery();return;}
       const opener=e.target.closest("[data-open-product]"); if(opener&&!add){openProduct(opener.dataset.openProduct);}
       const f=e.target.closest("[data-filter]"); if(f){ state.filter=f.dataset.filter; $$(".filter-chip").forEach(x=>x.classList.toggle("active",x===f)); renderProducts(); }
-      const st=e.target.closest("[data-store]"); if(st){ state.filter=st.dataset.store; $("#shop").scrollIntoView(); renderProducts(); }
       const q=e.target.closest("[data-qty]"); if(q){ const line=state.cart.find(x=>x.id===q.dataset.qty); if(line){line.qty+=Number(q.dataset.d);if(line.qty<=0)state.cart=state.cart.filter(x=>x!==line);saveCart();}}
       const rm=e.target.closest("[data-remove]"); if(rm){state.cart=state.cart.filter(x=>x.id!==rm.dataset.remove);saveCart();}
       const cls=e.target.closest("[data-close]"); if(cls) closeLayer(cls.dataset.close);
