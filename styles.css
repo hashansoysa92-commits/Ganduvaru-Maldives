@@ -3054,3 +3054,305 @@ body.ui-layer-open{
     grid-column:auto!important;
   }
 }
+
+
+/* === Promotion Price + Mobile Four-Up + Cart Bubble + Footer Polish === */
+/* Promotion price must stay readable on the light promotion cards. */
+.storefront .promotion-copy strong{
+  color:#171b20!important;
+  font-weight:950;
+  text-shadow:none!important;
+  letter-spacing:-.02em;
+}
+.storefront .promotion-link{
+  color:#9a6b1f;
+  font-weight:900;
+}
+
+/* Correct, recognizable WhatsApp treatment in Contact. */
+.storefront .contact-icon-whatsapp{
+  color:#128c7e;
+}
+.storefront .contact-icon-whatsapp svg{
+  fill:none;
+  stroke:currentColor;
+}
+.storefront .contact-icon-whatsapp:hover,
+.storefront .contact-icon-whatsapp:focus-visible{
+  color:#fff;
+  background:linear-gradient(145deg,#25d366,#128c7e);
+  border-color:rgba(18,140,126,.35);
+  box-shadow:0 26px 62px rgba(18,140,126,.23),0 0 0 1px rgba(255,255,255,.35) inset;
+}
+
+/* Draggable floating cart bubble. */
+.storefront .cart-bubble{
+  position:fixed;
+  right:max(20px,env(safe-area-inset-right,0px));
+  bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 14px));
+  z-index:76;
+  width:64px;
+  height:64px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(128,87,24,.32);
+  border-radius:50%;
+  color:#17130b;
+  background:
+    radial-gradient(circle at 30% 18%,rgba(255,255,255,.88),transparent 28%),
+    linear-gradient(145deg,#f4dda3,#c99542);
+  box-shadow:
+    0 18px 46px rgba(44,32,17,.26),
+    0 0 0 1px rgba(255,255,255,.48) inset;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  transition:box-shadow .28s ease,transform .28s var(--ease-luxury);
+}
+.storefront .cart-bubble:hover,
+.storefront .cart-bubble:focus-visible{
+  outline:none;
+  transform:translateY(-3px) scale(1.035);
+  box-shadow:
+    0 24px 58px rgba(44,32,17,.32),
+    0 0 0 3px rgba(238,201,118,.22),
+    0 0 0 1px rgba(255,255,255,.56) inset;
+}
+.storefront .cart-bubble.dragging{
+  cursor:grabbing;
+  transform:scale(1.06);
+  transition:none;
+  box-shadow:0 28px 68px rgba(44,32,17,.34),0 0 0 3px rgba(240,216,156,.24);
+}
+.storefront .cart-bubble svg{
+  width:27px;
+  height:27px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  pointer-events:none;
+}
+.storefront .cart-bubble-count{
+  position:absolute;
+  right:-2px;
+  top:-3px;
+  min-width:22px;
+  height:22px;
+  padding:0 5px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  color:#fff;
+  background:#171a1f;
+  border:2px solid #ead094;
+  font-size:9px;
+  line-height:1;
+  font-weight:950;
+  box-shadow:0 5px 14px rgba(0,0,0,.22);
+  pointer-events:none;
+}
+.storefront .cart-bubble.has-items{
+  box-shadow:
+    0 20px 52px rgba(148,102,31,.32),
+    0 0 0 4px rgba(227,190,104,.12);
+}
+
+/* Footer: balanced layout on desktop/tablet and an intentional mobile hierarchy. */
+.storefront .site-footer{
+  overflow:hidden;
+}
+.storefront .footer-grid{
+  align-items:start;
+}
+.storefront .footer-grid>div{
+  min-width:0;
+}
+.storefront .footer-grid a,
+.storefront .footer-link{
+  width:max-content;
+  max-width:100%;
+}
+.storefront .footer-social-link{
+  min-height:34px;
+}
+
+/* Mobile promotion carousel: about four products are visible at once. */
+@media(max-width:680px){
+  .storefront .promotion-track{
+    grid-auto-columns:calc((100% - 18px)/4)!important;
+    gap:6px!important;
+    padding:2px 0 10px!important;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+  }
+  .storefront .promotion-track::-webkit-scrollbar{display:none}
+  .storefront .promotion-card{
+    min-width:0;
+    min-height:164px;
+    grid-template-columns:1fr!important;
+    grid-template-rows:70px minmax(94px,auto);
+    border-radius:12px;
+    scroll-snap-align:start;
+    box-shadow:0 10px 24px rgba(62,47,27,.10);
+  }
+  .storefront .promotion-image{
+    min-height:70px;
+    height:70px;
+  }
+  .storefront .promotion-image>img{
+    padding:4px!important;
+  }
+  .storefront .promotion-copy{
+    padding:6px!important;
+    gap:2px;
+  }
+  .storefront .promotion-kicker{
+    max-width:100%;
+    margin-bottom:3px;
+    padding:3px 5px;
+    border-radius:999px;
+    font-size:6.5px;
+    letter-spacing:.025em;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .storefront .promotion-copy h3{
+    width:100%;
+    min-height:23px;
+    margin:0;
+    font-size:8.5px;
+    line-height:1.25;
+    -webkit-line-clamp:2;
+  }
+  .storefront .promotion-copy small{
+    display:none;
+  }
+  .storefront .promotion-copy strong{
+    width:100%;
+    margin-top:auto;
+    padding-top:4px;
+    font-size:10px!important;
+    line-height:1.1;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+  .storefront .promotion-link{
+    display:none;
+  }
+  .storefront .promotion-carousel-bar{
+    margin-bottom:8px;
+  }
+
+  .storefront .cart-bubble{
+    width:58px;
+    height:58px;
+    right:max(14px,env(safe-area-inset-right,0px));
+    bottom:max(18px,calc(env(safe-area-inset-bottom,0px) + 10px));
+  }
+  .storefront .cart-bubble svg{
+    width:25px;
+    height:25px;
+  }
+
+  .storefront .footer-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:28px 18px!important;
+    padding:38px 0 30px!important;
+  }
+  .storefront .footer-grid>div:first-child{
+    grid-column:1/-1!important;
+    align-items:center;
+    text-align:center;
+  }
+  .storefront .footer-brand{
+    margin-inline:auto;
+  }
+  .storefront .footer-brand img{
+    width:88px!important;
+    height:88px!important;
+    border-radius:14px;
+  }
+  .storefront .footer-grid>div:last-child{
+    grid-column:1/-1!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:8px!important;
+  }
+  .storefront .footer-grid>div:last-child>strong{
+    grid-column:1/-1;
+    margin-bottom:2px;
+  }
+  .storefront .footer-social-link{
+    width:100%!important;
+    min-width:0;
+    min-height:54px;
+    padding:7px 5px!important;
+    display:flex!important;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px!important;
+    text-align:center!important;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;
+    background:rgba(255,255,255,.025);
+    font-size:9px!important;
+  }
+  .storefront .footer-social-mark{
+    width:26px;
+    height:26px;
+    flex-basis:26px;
+  }
+  .storefront .footer-bottom{
+    padding:16px 0 max(24px,calc(env(safe-area-inset-bottom,0px) + 14px))!important;
+    gap:6px!important;
+    text-align:center;
+    align-items:center!important;
+  }
+}
+@media(max-width:430px){
+  .storefront .footer-grid{
+    grid-template-columns:1fr 1fr!important;
+    gap:24px 14px!important;
+  }
+  .storefront .footer-grid>div:first-child{
+    grid-column:1/-1!important;
+  }
+  .storefront .footer-grid>div:last-child{
+    grid-column:1/-1!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .storefront .footer-grid>div:nth-child(2),
+  .storefront .footer-grid>div:nth-child(3){
+    min-width:0;
+  }
+  .storefront .footer-grid p,
+  .storefront .footer-grid a,
+  .storefront .footer-link{
+    font-size:11px;
+  }
+}
+@media(max-width:340px){
+  .storefront .promotion-track{
+    grid-auto-columns:calc((100% - 15px)/4)!important;
+    gap:5px!important;
+  }
+  .storefront .promotion-copy{
+    padding:5px!important;
+  }
+  .storefront .promotion-copy h3{
+    font-size:7.8px;
+  }
+  .storefront .promotion-copy strong{
+    font-size:9px!important;
+  }
+}
+@media(hover:none){
+  .storefront .cart-bubble:hover{
+    transform:none;
+  }
+}
