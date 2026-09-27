@@ -148,7 +148,7 @@
   function renderAll(){
     data.pageOverrides=data.pageOverrides||{}; data.promotions=data.promotions||[]; data.products=data.products||[]; data.site=data.site||{};
     if(adminRole==="super_admin"){
-      $("#siteAnnouncement").value=data.site.announcement||"";$("#siteHeroTitle").value=data.site.heroTitle||"";$("#siteHeroSubtitle").value=data.site.heroSubtitle||"";$("#siteAboutTitle").value=data.site.aboutTitle||"";$("#siteAboutText").value=data.site.aboutText||"";$("#siteOrderWhatsApp").value=data.site.orderWhatsApp||"";
+      $("#siteAnnouncement").value=data.site.announcement||"";$("#siteHeroTitle").value=data.site.heroTitle||"";$("#siteHeroSubtitle").value=data.site.heroSubtitle||"";$("#siteAboutTitle").value=data.site.aboutTitle||"";$("#siteAboutText").value=data.site.aboutText||"";
       $("#contactPhone").value=data.site.contactPhone||"";$("#contactWhatsApp").value=data.site.contactWhatsApp||"";$("#contactFacebook").value=data.site.contactFacebook||"";$("#contactInstagram").value=data.site.contactInstagram||"";$("#contactTikTok").value=data.site.contactTikTok||"";
       renderTabs();renderPromotions();
     }
@@ -193,12 +193,12 @@
     data.site.heroSubtitle=$("#siteHeroSubtitle").value;
     data.site.aboutTitle=$("#siteAboutTitle").value;
     data.site.aboutText=$("#siteAboutText").value;
-    data.site.orderWhatsApp=$("#siteOrderWhatsApp").value;
     data.site.contactPhone=$("#contactPhone").value.trim();
     data.site.contactWhatsApp=$("#contactWhatsApp").value.trim();
     data.site.contactFacebook=$("#contactFacebook").value.trim();
     data.site.contactInstagram=$("#contactInstagram").value.trim();
     data.site.contactTikTok=$("#contactTikTok").value.trim();
+    data.site.orderWhatsApp=data.site.contactWhatsApp;
   }
   async function save(){
     syncContent(); $("#saveBtn").disabled=true;
