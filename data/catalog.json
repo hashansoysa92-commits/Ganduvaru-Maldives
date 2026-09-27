@@ -1,20 +1,21 @@
 {
   "site": {
     "announcement": "Free delivery available to selected Malé, Hulhumalé, airport & boat locations.",
-    "heroTitle": "One destination. Four specialist stores.",
+    "heroTitle": "One destination. Everything you need.",
     "heroSubtitle": "Premium mobiles, electronics, authentic skincare and beauty — curated for life in the Maldives.",
     "aboutTitle": "Built around trusted retail in the Maldives.",
-    "aboutText": "Ganduvaru brings together specialist retail experiences across mobiles, electronics, skincare and beauty. This website is designed as one modern destination for discovering products, contacting each store and placing orders online.",
-    "orderWhatsApp": "9607969050"
+    "aboutText": "Ganduvaru brings together premium mobiles, electronics, skincare and beauty in one modern shopping destination for the Maldives.",
+    "orderWhatsApp": "9607969050",
+    "contactPhone": "+960 333-9050",
+    "contactWhatsApp": "+960 796-9050",
+    "contactFacebook": "https://www.facebook.com/ganduvarumobiles",
+    "contactInstagram": "https://www.instagram.com/GanduvaruMaldives",
+    "contactTikTok": ""
   },
   "tabs": [
     {
       "label": "Home",
       "href": "#home"
-    },
-    {
-      "label": "Stores",
-      "href": "#stores"
     },
     {
       "label": "Shop",
@@ -29,54 +30,7 @@
       "href": "#contact"
     }
   ],
-  "stores": [
-    {
-      "id": "mobiles",
-      "name": "Ganduvaru Mobiles",
-      "icon": "◫",
-      "accent": "#7c9cff",
-      "summary": "Smartphones, tablets, wearables, audio, accessories, networking and mobile repair.",
-      "address": "H. Champaage, Majeedhee Magu, Malé, Maldives",
-      "phone": "+960 333-9050",
-      "whatsapp": "+960 796-9050",
-      "facebook": "https://www.facebook.com/ganduvarumobiles"
-    },
-    {
-      "id": "electronics",
-      "name": "Ganduvaru Electronics",
-      "icon": "⌁",
-      "accent": "#d6b36a",
-      "summary": "Home and kitchen appliances, personal care electronics and branded everyday essentials.",
-      "address": "Dhilbahaaru Magu, Malé, Maldives",
-      "phone": "+960 332-9050",
-      "whatsapp": "+960 740-9050",
-      "facebook": "https://www.facebook.com/profile.php?id=61565170329232"
-    },
-    {
-      "id": "drrashel",
-      "name": "Dr.Rashel Maldives",
-      "icon": "✦",
-      "accent": "#df8ca6",
-      "summary": "Authorized Dr.Rashel destination for skincare, hair care, body care and beauty products.",
-      "address": "Majeedhee Magu Rd, Malé, Maldives",
-      "phone": "+960 986-3917",
-      "whatsapp": "+960 986-3917",
-      "email": "ganduvarucosmetics@gmail.com",
-      "facebook": "https://www.facebook.com/profile.php?id=61552765762660"
-    },
-    {
-      "id": "zaara",
-      "name": "Zaara Beauty Care",
-      "icon": "✧",
-      "accent": "#9bd5c2",
-      "summary": "Authentic skincare and cosmetics from popular Korean and international beauty brands.",
-      "address": "Ma. Coronet Peak, Chaandanee Magu, Malé, Maldives 20201",
-      "phone": "+960 788-6090",
-      "whatsapp": "+960 788-6090",
-      "email": "zaarabeautycare.mv@gmail.com",
-      "facebook": "https://www.facebook.com/profile.php?id=61579154237726"
-    }
-  ],
+  "stores": [],
   "categories": [
     "All",
     "Phones",
