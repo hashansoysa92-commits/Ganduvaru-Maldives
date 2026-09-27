@@ -522,40 +522,89 @@
   $("#addTabBtn").onclick=()=>{const l=$("#tabLabel").value.trim(),h=$("#tabHref").value.trim();if(!l||!h)return toast("Enter label and link");data.tabs.push({label:l,href:h});$("#tabLabel").value="";$("#tabHref").value="";renderTabs();mark()};
   function readProductForm(existingId=""){
     const n=$("#pName").value.trim();if(!n){toast("Enter product name");return null}
+    const categoryId=$("#pCategoryId").value;
+    const cat=categoryById(categoryId);
+    if(!cat){toast("Select a product category");return null}
+    const subcategoryId=$("#pSubcategoryId").value||"";
+    const sub=subcategoryById(cat,subcategoryId);
     const raw=$("#pPrice").value.trim();
     const images=[...new Set($("#pImages").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
-    return {id:existingId||slug(n),name:n,category:$("#pCategory").value.trim()||"Other",price:raw===""?null:Number(raw),badge:$("#pBadge").value.trim(),description:$("#pDescription").value.trim(),image:images[0]||"",images,featured:$("#pFeatured").checked,stock:$("#pStock").value.trim()||"Ask for stock"};
+    const availability=$("#pAvailability").value==="out_of_stock"?"out_of_stock":"in_stock";
+    return {
+      id:existingId||slug(n),name:n,
+      categoryId:cat.id,category:cat.name,
+      subcategoryId:sub?.id||"",subcategory:sub?.name||"",
+      price:raw===""?null:Number(raw),
+      badge:$("#pBadge").value.trim(),
+      description:$("#pDescription").value.trim(),
+      image:images[0]||"",images,
+      featured:$("#pFeatured").checked,
+      availability,
+      stock:availability==="out_of_stock"?"Out of Stock":"In Stock"
+    };
   }
+
   function clearProductForm(){
     editingProductIndex=-1;
-    ["pName","pCategory","pPrice","pBadge","pDescription","pImages","pStock"].forEach(id=>$("#"+id).value="");
-    $("#pFeatured").checked=false;$("#addProductBtn").textContent="Add product";$("#cancelProductEditBtn").hidden=true;
+    ["pName","pPrice","pBadge","pDescription","pImages"].forEach(id=>$("#"+id).value="");
+    $("#pFeatured").checked=false;
+    $("#pAvailability").value="in_stock";
+    if($("#pCategoryId").options.length)$("#pCategoryId").selectedIndex=0;
+    renderSubcategorySelect();
+    $("#addProductBtn").textContent="Add product";
+    $("#cancelProductEditBtn").hidden=true;
   }
+
   function loadProductForm(i){
     const p=data.products[i];if(!p)return;editingProductIndex=i;
-    $("#pName").value=p.name||"";$("#pCategory").value=p.category||"";$("#pPrice").value=p.price==null?"":p.price;$("#pBadge").value=p.badge||"";$("#pStock").value=p.stock||"";$("#pDescription").value=p.description||"";$("#pImages").value=productImages(p).join("\n");$("#pFeatured").checked=!!p.featured;
-    $("#addProductBtn").textContent="Update product";$("#cancelProductEditBtn").hidden=false;$("#pName").focus();window.scrollTo({top:document.querySelector("[data-admin-section='products']").offsetTop-70,behavior:"smooth"});
+    $("#pName").value=p.name||"";
+    $("#pCategoryId").value=p.categoryId||"";
+    renderSubcategorySelect(p.subcategoryId||"");
+    $("#pPrice").value=p.price==null?"":p.price;
+    $("#pBadge").value=p.badge||"";
+    $("#pAvailability").value=p.availability==="out_of_stock"?"out_of_stock":"in_stock";
+    $("#pDescription").value=p.description||"";
+    $("#pImages").value=productImages(p).join("\n");
+    $("#pFeatured").checked=!!p.featured;
+    $("#addProductBtn").textContent="Update product";
+    $("#cancelProductEditBtn").hidden=false;
+    $("#pName").focus();
+    window.scrollTo({top:document.querySelector("[data-admin-section='products']").offsetTop-70,behavior:"smooth"});
   }
+
+  $("#pCategoryId").addEventListener("change",()=>renderSubcategorySelect());
+  $("#adminProductCategoryFilter").addEventListener("change",renderProducts);
   $("#cancelProductEditBtn").onclick=clearProductForm;
+
   $("#addProductBtn").onclick=async()=>{
-    const existing=editingProductIndex>=0?data.products[editingProductIndex]?.id:"";
+    const editing=editingProductIndex>=0;
+    if(editing&&!hasPermission("products_edit"))return toast("You do not have permission to edit products");
+    if(!editing&&!hasPermission("products_add"))return toast("You do not have permission to add products");
+    const existing=editing?data.products[editingProductIndex]?.id:"";
     const product=readProductForm(existing);if(!product)return;
-    if(adminRole==="product_admin"){
-      $("#addProductBtn").disabled=true;
-      try{
-        const result=await rpc("ganduvaru_admin_add_product",{p_token:sessionToken,p_product:product});
-        if(!result?.ok)throw new Error(result?.message||"Could not add product");
-        await loadCatalog();clearProductForm();renderAll();toast("Product published successfully");
-      }catch(e){toast(e.message||"Could not add product")}
-      finally{$("#addProductBtn").disabled=false}
-      return;
-    }
-    if(editingProductIndex>=0){data.products[editingProductIndex]=product;toast("Product updated — publish changes to go live")}
-    else{data.products.unshift(product);toast("Product added — publish changes to go live")}
-    clearProductForm();renderProducts();renderPromotions();mark();
+    $("#addProductBtn").disabled=true;
+    try{
+      const result=editing
+        ? await rpc("ganduvaru_admin_product_action",{p_token:sessionToken,p_action:"edit",p_product_id:existing,p_product:product})
+        : await rpc("ganduvaru_admin_add_product",{p_token:sessionToken,p_product:product});
+      if(!result?.ok)throw new Error(result?.message||"Could not save product");
+      await loadCatalog();clearProductForm();renderAll();toast(editing?"Product updated":"Product published successfully");
+    }catch(e){toast(e.message||"Could not save product")}
+    finally{$("#addProductBtn").disabled=false}
   };
+
+  $("#addCategoryBtn").onclick=()=>{
+    if(!hasPermission("categories_manage"))return;
+    const name=$("#newCategoryName").value.trim();
+    if(name.length<2)return toast("Enter a category name");
+    if(data.productCategories.some(x=>String(x.name).toLowerCase()===name.toLowerCase()))return toast("Category already exists");
+    data.productCategories.push({id:"cat-"+slug(name),name,subcategories:[]});
+    $("#newCategoryName").value="";renderCategories();mark();toast("Category added — publish changes to go live");
+  };
+  $("#newCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#addCategoryBtn").click()}});
+
   $("#addPromoCategoryBtn").onclick=()=>{
-    if(adminRole!=="super_admin")return;
+    if(!hasPermission("promotions_manage"))return;
     const name=$("#promoCategoryName").value.trim();
     if(name.length<2)return toast("Enter a promotion category name");
     if(data.promotionCategories.some(x=>String(x.name).toLowerCase()===name.toLowerCase()))return toast("This promotion category already exists");
@@ -565,7 +614,7 @@
   };
   $("#promoCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#addPromoCategoryBtn").click()}});
   $("#addPromoBtn").onclick=()=>{
-    if(adminRole!=="super_admin")return;
+    if(!hasPermission("promotions_manage"))return;
     const id=$("#promoProduct").value,categoryId=$("#promoCategorySelect").value;
     if(!id)return toast("Select a product");
     if(!categoryId)return toast("Create and select a promotion category");
@@ -574,6 +623,9 @@
     data.promotions.unshift({productId:id,categoryId,label:cat?.name||"Promotion"});
     renderPromotions();mark();toast("Product added to promotion category");
   };
+
+  $("#refreshOrdersBtn").onclick=loadOrders;
+
   async function createAdmin(){
     const username=$("#newAdminUsername").value.trim(),password=$("#newAdminPassword").value;
     if(!username||password.length<8)return toast("Enter a username and password of at least 8 characters");
