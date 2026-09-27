@@ -436,8 +436,10 @@
     }
     if(e.target.dataset.subcategoryIndex!==undefined&&hasPermission("categories_manage")){
       const ci=Number(e.target.dataset.categoryIndex),si=Number(e.target.dataset.subcategoryIndex);
-      const sub=data.productCategories?.[ci]?.subcategories?.[si];if(!sub)return;
-      sub.name=e.target.value;mark();
+      const cat=data.productCategories?.[ci],sub=cat?.subcategories?.[si];if(!sub)return;
+      sub.name=e.target.value;
+      data.products.forEach(p=>{if(p.categoryId===cat.id&&p.subcategoryId===sub.id)p.subcategory=e.target.value});
+      mark();
     }
   });
   document.addEventListener("click",async e=>{
