@@ -823,7 +823,7 @@
       const add=e.target.closest("[data-add]"); if(add){ e.stopPropagation(); addToCart(add.dataset.add); }
       const photo=e.target.closest("[data-detail-photo]"); if(photo){activePhotoIndex=Number(photo.dataset.detailPhoto)||0;renderDetailGallery();return;}
       const opener=e.target.closest("[data-open-product]"); if(opener&&!add){openProduct(opener.dataset.openProduct);}
-      const f=e.target.closest("[data-filter]"); if(f){ state.filter=f.dataset.filter; $(".filter-chip").forEach(x=>{const active=x===f;x.classList.toggle("active",active);x.setAttribute("aria-pressed",active?"true":"false")}); renderProducts(); }
+      const f=e.target.closest("[data-filter]"); if(f){ state.filter=f.dataset.filter; $$(".filter-chip").forEach(x=>{const active=x===f;x.classList.toggle("active",active);x.setAttribute("aria-pressed",active?"true":"false")}); renderProducts(); }
       const q=e.target.closest("[data-qty]"); if(q){ const line=state.cart.find(x=>x.id===q.dataset.qty); if(line){line.qty+=Number(q.dataset.d);if(line.qty<=0)state.cart=state.cart.filter(x=>x!==line);saveCart();}}
       const rm=e.target.closest("[data-remove]"); if(rm){state.cart=state.cart.filter(x=>x.id!==rm.dataset.remove);saveCart();}
       const cls=e.target.closest("[data-close]"); if(cls) closeLayer(cls.dataset.close);
