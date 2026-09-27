@@ -1321,3 +1321,49 @@ input:focus,textarea:focus,select:focus{
 @media(max-width:390px){
   .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 }
+
+
+/* === Simplified Ganduvaru Contact Section === */
+.contact-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:12px;
+}
+.contact-method{
+  min-height:170px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-end;
+}
+.contact-method-label{
+  margin-bottom:auto;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--gold2);
+}
+.contact-method h3{
+  width:100%;
+  margin:22px 0 16px;
+  font-family:var(--font-body);
+  font-size:clamp(14px,1.2vw,18px);
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.contact-method .small-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:88px;
+}
+@media(max-width:1050px){
+  .contact-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:680px){
+  .contact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .contact-method{min-height:145px}
+}
+@media(max-width:390px){
+  .contact-grid{grid-template-columns:1fr}
+}
