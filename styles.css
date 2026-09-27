@@ -3496,3 +3496,104 @@ body.ui-layer-open{
     box-shadow:0 10px 28px rgba(0,0,0,.24);
   }
 }
+
+
+/* === Commerce Checkout + Inventory Polish === */
+.storefront .checkout-card{
+  width:min(620px,96vw);
+}
+.storefront .checkout-customer-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.storefront .checkout-card input,
+.storefront .checkout-card textarea{
+  font-size:16px;
+}
+.storefront .order-submit-status{
+  min-height:18px;
+  margin:10px 0 0;
+  color:#e7cb88;
+  font-size:10px;
+  font-weight:750;
+  line-height:1.45;
+}
+.storefront .product-stock.out,
+.storefront .detail-stock.out{
+  color:#ffaaa6;
+  border-color:rgba(240,105,105,.25);
+}
+.storefront .product-out-of-stock{
+  opacity:.88;
+}
+.storefront .stock-overlay{
+  position:absolute;
+  inset:auto 10px 10px 10px;
+  z-index:3;
+  min-height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  color:#fff;
+  background:rgba(18,20,24,.86);
+  border:1px solid rgba(255,255,255,.15);
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.12em;
+  backdrop-filter:blur(6px);
+}
+.storefront .add-button:disabled,
+.storefront #productDetailAdd:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  filter:grayscale(.75);
+  transform:none!important;
+}
+.storefront .contact-icon-link svg{
+  width:31px;
+  height:31px;
+  fill:currentColor;
+  stroke:none;
+}
+.storefront .contact-icon-phone svg{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+}
+.storefront .contact-icon-facebook,
+.storefront .contact-icon-instagram,
+.storefront .contact-icon-tiktok,
+.storefront .contact-icon-whatsapp{
+  color:#9c722d;
+}
+.storefront .contact-icon-facebook:hover,
+.storefront .contact-icon-instagram:hover,
+.storefront .contact-icon-tiktok:hover,
+.storefront .contact-icon-whatsapp:hover,
+.storefront .contact-icon-facebook:focus-visible,
+.storefront .contact-icon-instagram:focus-visible,
+.storefront .contact-icon-tiktok:focus-visible,
+.storefront .contact-icon-whatsapp:focus-visible{
+  color:#17130b;
+  background:linear-gradient(135deg,#f7e4b0,#c99542);
+}
+@media(max-width:680px){
+  .storefront .checkout-customer-grid{
+    grid-template-columns:1fr;
+    gap:0;
+  }
+  .storefront .checkout-card{
+    width:100%;
+    height:100dvh;
+    max-height:none;
+    overflow:auto;
+    border-radius:0;
+    padding:22px 18px max(28px,env(safe-area-inset-bottom,0px));
+  }
+  .storefront .stock-overlay{
+    font-size:7px;
+    inset:auto 7px 7px 7px;
+  }
+}
