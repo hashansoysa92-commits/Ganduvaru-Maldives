@@ -869,8 +869,13 @@
     $("#productSearch").addEventListener("input",e=>{state.search=e.target.value;renderProducts()});
     $("#sortSelect").addEventListener("change",e=>{state.sort=e.target.value;renderProducts()});
     $("#cartButton").onclick=()=>openLayer("cartDrawer"); $("#footerCart").onclick=()=>openLayer("cartDrawer");
+    $("#cartContinueButton").onclick=()=>closeLayer("cartDrawer");
     initCartBubble();
-    $("#menuButton").onclick=()=>openLayer("menuDrawer"); $("#backdrop").onclick=()=>$$(".drawer.open").forEach(d=>closeLayer(d.id));
+    $("#menuButton").onclick=()=>openLayer("menuDrawer");
+    $("#backdrop").onclick=()=>{
+      $(".drawer.open").forEach(d=>closeLayer(d.id));
+      $(".modal.open").forEach(m=>closeLayer(m.id));
+    };
     $("#accountButton").onclick=$("#footerAccount").onclick=()=>{ if(state.user){ toast("Signed in as "+state.user.name); } else openLayer("authModal"); };
     $("#checkoutButton").onclick=checkout; $("#requestOtpButton").onclick=requestOtp; $("#verifyOtpButton").onclick=verifyOtp;
     $("#backToDetails").onclick=()=>{$("#authOtpStep").hidden=true;$("#authDetailsStep").hidden=false;$("#demoCode").hidden=true;};
