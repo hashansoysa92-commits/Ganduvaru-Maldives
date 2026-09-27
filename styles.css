@@ -3356,3 +3356,39 @@ body.ui-layer-open{
     transform:none;
   }
 }
+
+
+/* === Guaranteed Four-Up Mobile Promotions === */
+@media(max-width:680px){
+  .storefront #promotionTrack{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch;
+    gap:6px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding:2px 0 10px!important;
+    scroll-snap-type:x mandatory!important;
+    scrollbar-width:none!important;
+  }
+  .storefront #promotionTrack::-webkit-scrollbar{display:none!important}
+  .storefront #promotionTrack>.promotion-card{
+    flex:0 0 calc((100% - 18px)/4)!important;
+    width:calc((100% - 18px)/4)!important;
+    max-width:calc((100% - 18px)/4)!important;
+    min-width:0!important;
+    grid-auto-columns:auto!important;
+  }
+}
+@media(max-width:340px){
+  .storefront #promotionTrack{
+    gap:5px!important;
+  }
+  .storefront #promotionTrack>.promotion-card{
+    flex-basis:calc((100% - 15px)/4)!important;
+    width:calc((100% - 15px)/4)!important;
+    max-width:calc((100% - 15px)/4)!important;
+  }
+}
