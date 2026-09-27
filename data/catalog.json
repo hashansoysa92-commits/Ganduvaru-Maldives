@@ -3,14 +3,17 @@
     "aboutText": "Ganduvaru brings together premium mobiles, electronics, skincare and beauty in one modern shopping destination for the Maldives.",
     "heroTitle": "One destination. Everything you need.",
     "aboutTitle": "Built around trusted retail in the Maldives.",
+    "orderEmail": "hashansoysa92@gmail.com",
     "announcement": "Free delivery available to selected Malé, Hulhumalé, airport & boat locations.",
     "contactPhone": "+960 333-9050",
     "heroSubtitle": "Premium mobiles, electronics, authentic skincare and beauty — curated for life in the Maldives.",
     "contactTikTok": "",
+    "orderSheetUrl": "https://docs.google.com/spreadsheets/d/14pnR0tBWpHWmK0iHlERQvJRu0Xl5ejczSM3ExGgJDXE/edit",
     "orderWhatsApp": "+960 796-9050",
     "contactFacebook": "https://www.facebook.com/ganduvarumobiles",
     "contactWhatsApp": "+960 796-9050",
-    "contactInstagram": "https://www.instagram.com/GanduvaruMaldives"
+    "contactInstagram": "https://www.instagram.com/GanduvaruMaldives",
+    "orderDriveFolderUrl": "https://drive.google.com/drive/folders/1Hyat7FKjoaT-nfETu8iNyNt2iAWq53B4"
   },
   "tabs": [
     {
@@ -47,7 +50,10 @@
       ],
       "category": "Audio",
       "featured": true,
-      "description": "Wireless Marshall headphones with 30+ hours of playback."
+      "categoryId": "audio",
+      "description": "Wireless Marshall headphones with 30+ hours of playback.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "marshall-major-iv",
@@ -64,7 +70,10 @@
       ],
       "category": "Audio",
       "featured": true,
-      "description": "Iconic wireless headphones with up to 80+ hours of playback."
+      "categoryId": "audio",
+      "description": "Iconic wireless headphones with up to 80+ hours of playback.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "apple-pencil-2",
@@ -80,7 +89,10 @@
       ],
       "category": "Accessories",
       "featured": true,
-      "description": "Precision stylus for compatible iPad models."
+      "categoryId": "accessories",
+      "description": "Precision stylus for compatible iPad models.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "apple-pencil-pro",
@@ -96,7 +108,10 @@
       ],
       "category": "Accessories",
       "featured": true,
-      "description": "Advanced Apple Pencil experience for compatible iPad models."
+      "categoryId": "accessories",
+      "description": "Advanced Apple Pencil experience for compatible iPad models.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "apple-pencil-usbc",
@@ -112,7 +127,10 @@
       ],
       "category": "Accessories",
       "featured": false,
-      "description": "USB-C Apple Pencil for writing, note-taking and creative work."
+      "categoryId": "accessories",
+      "description": "USB-C Apple Pencil for writing, note-taking and creative work.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "eufycam-2-pro",
@@ -127,7 +145,10 @@
       ],
       "category": "Networking",
       "featured": true,
-      "description": "Wire-free 2K home security camera system with local storage."
+      "categoryId": "networking",
+      "description": "Wire-free 2K home security camera system with local storage.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "huawei-mediapad-t5",
@@ -142,7 +163,10 @@
       ],
       "category": "Tablets",
       "featured": true,
-      "description": "3GB RAM, 32GB storage and 5100mAh battery."
+      "categoryId": "tablets",
+      "description": "3GB RAM, 32GB storage and 5100mAh battery.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "blackview-wave-10c",
@@ -157,7 +181,10 @@
       ],
       "category": "Phones",
       "featured": true,
-      "description": "4GB RAM, 128GB storage, 5000mAh battery and 32MP camera."
+      "categoryId": "phones",
+      "description": "4GB RAM, 128GB storage, 5000mAh battery and 32MP camera.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "meizu-note-22",
@@ -174,7 +201,10 @@
       ],
       "category": "Phones",
       "featured": true,
-      "description": "8GB RAM, 1TB storage, 5000mAh battery and 108MP camera."
+      "categoryId": "phones",
+      "description": "8GB RAM, 1TB storage, 5000mAh battery and 108MP camera.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "sonifer-kitchen",
@@ -189,7 +219,10 @@
       ],
       "category": "Home Appliances",
       "featured": true,
-      "description": "Kitchen and home appliances selected for everyday convenience."
+      "categoryId": "home-appliances",
+      "description": "Kitchen and home appliances selected for everyday convenience.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "geepas-ac-12000",
@@ -205,7 +238,10 @@
       ],
       "category": "Home Appliances",
       "featured": true,
-      "description": "Inverter air conditioning designed for powerful everyday cooling."
+      "categoryId": "home-appliances",
+      "description": "Inverter air conditioning designed for powerful everyday cooling.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "sanford-geepas-hair",
@@ -221,7 +257,10 @@
       ],
       "category": "Personal Care Electronics",
       "featured": false,
-      "description": "Hair styling and personal care electronics for everyday routines."
+      "categoryId": "personal-care-electronics",
+      "description": "Hair styling and personal care electronics for everyday routines.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "dr-rashel-skincare",
@@ -237,7 +276,10 @@
       ],
       "category": "Skincare",
       "featured": true,
-      "description": "Hydration, brightening and care products from the Dr.Rashel range."
+      "categoryId": "skincare",
+      "description": "Hydration, brightening and care products from the Dr.Rashel range.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "cosrx-skincare",
@@ -253,7 +295,10 @@
       ],
       "category": "Skincare",
       "featured": true,
-      "description": "Popular Korean skincare favorites available through Zaara Beauty Care."
+      "categoryId": "skincare",
+      "description": "Popular Korean skincare favorites available through Zaara Beauty Care.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "beauty-of-joseon",
@@ -269,7 +314,10 @@
       ],
       "category": "Skincare",
       "featured": true,
-      "description": "Korean skincare products curated for a balanced daily routine."
+      "categoryId": "skincare",
+      "description": "Korean skincare products curated for a balanced daily routine.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "la-roche-posay",
@@ -284,7 +332,10 @@
       ],
       "category": "Skincare",
       "featured": false,
-      "description": "Daily skincare options from the La Roche-Posay range."
+      "categoryId": "skincare",
+      "description": "Daily skincare options from the La Roche-Posay range.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     },
     {
       "id": "medicube",
@@ -300,7 +351,10 @@
       ],
       "category": "Skincare",
       "featured": false,
-      "description": "Medicube skincare selection available from Zaara Beauty Care."
+      "categoryId": "skincare",
+      "description": "Medicube skincare selection available from Zaara Beauty Care.",
+      "availability": "in_stock",
+      "subcategoryId": ""
     }
   ],
   "categories": [
@@ -353,7 +407,54 @@
       "categoryId": "friday-offer"
     }
   ],
+  "ordersConfig": {
+    "sheetName": "Orders",
+    "driveFolderId": "1Hyat7FKjoaT-nfETu8iNyNt2iAWq53B4",
+    "spreadsheetId": "14pnR0tBWpHWmK0iHlERQvJRu0Xl5ejczSM3ExGgJDXE"
+  },
   "pageOverrides": {},
+  "productCategories": [
+    {
+      "id": "accessories",
+      "name": "Accessories",
+      "subcategories": []
+    },
+    {
+      "id": "audio",
+      "name": "Audio",
+      "subcategories": []
+    },
+    {
+      "id": "home-appliances",
+      "name": "Home Appliances",
+      "subcategories": []
+    },
+    {
+      "id": "networking",
+      "name": "Networking",
+      "subcategories": []
+    },
+    {
+      "id": "personal-care-electronics",
+      "name": "Personal Care Electronics",
+      "subcategories": []
+    },
+    {
+      "id": "phones",
+      "name": "Phones",
+      "subcategories": []
+    },
+    {
+      "id": "skincare",
+      "name": "Skincare",
+      "subcategories": []
+    },
+    {
+      "id": "tablets",
+      "name": "Tablets",
+      "subcategories": []
+    }
+  ],
   "promotionCategories": [
     {
       "id": "friday-offer",
