@@ -446,8 +446,63 @@
     });
   }
 
+  function initTopChromeAutoHide(){
+    const chrome=document.getElementById("topChrome");
+    const header=document.querySelector(".site-header");
+    if(!chrome||chrome.dataset.autoHideBound==="1")return;
+    if(new URLSearchParams(location.search).get("editor")==="1")return;
+    chrome.dataset.autoHideBound="1";
+
+    let lastY=Math.max(0,window.scrollY||0);
+    let ticking=false;
+    let revealingTimer=0;
+    const minDelta=7;
+    const hideAfter=96;
+
+    const showChrome=()=>{
+      chrome.classList.remove("top-chrome-hidden");
+      chrome.classList.add("top-chrome-visible","top-chrome-revealing");
+      clearTimeout(revealingTimer);
+      revealingTimer=setTimeout(()=>chrome.classList.remove("top-chrome-revealing"),420);
+    };
+    const hideChrome=()=>{
+      chrome.classList.remove("top-chrome-visible","top-chrome-revealing");
+      chrome.classList.add("top-chrome-hidden");
+    };
+    const update=()=>{
+      const y=Math.max(0,window.scrollY||0);
+      const delta=y-lastY;
+
+      header?.classList.toggle("scrolled",y>28);
+
+      if(y<=12){
+        showChrome();
+      }else if(Math.abs(delta)>=minDelta){
+        if(delta>0 && y>hideAfter) hideChrome();
+        else if(delta<0) showChrome();
+      }
+
+      lastY=y;
+      ticking=false;
+    };
+    const onScroll=()=>{
+      if(ticking)return;
+      ticking=true;
+      requestAnimationFrame(update);
+    };
+
+    showChrome();
+    header?.classList.toggle("scrolled",lastY>28);
+    window.addEventListener("scroll",onScroll,{passive:true});
+    window.addEventListener("pageshow",()=>{
+      lastY=Math.max(0,window.scrollY||0);
+      if(lastY<=12)showChrome();
+    });
+  }
+
   function initLuxuryMotion(){
     const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    initTopChromeAutoHide();
     if(reduced){
       document.querySelectorAll(".luxury-reveal").forEach(el=>el.classList.add("in-view"));
       return;
@@ -464,17 +519,6 @@
 
     refreshLuxuryMotion();
     randomizeHeroCategoryMotion();
-
-    const header=document.querySelector(".site-header");
-    const syncHeader=()=>header?.classList.toggle("scrolled",window.scrollY>28);
-    let headerTick=false;
-    const onHeaderScroll=()=>{
-      if(headerTick)return;
-      headerTick=true;
-      requestAnimationFrame(()=>{syncHeader();headerTick=false});
-    };
-    syncHeader();
-    window.addEventListener("scroll",onHeaderScroll,{passive:true});
 
     const hero=document.querySelector(".hero-visual");
     const card=document.querySelector(".hero-card-main");
