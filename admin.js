@@ -2,7 +2,8 @@
   const ROOT=window.GANDUVARU_CONFIG||{}, SB=ROOT.supabase||{}, $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
   let sessionToken=sessionStorage.getItem("ganduvaru_admin_session")||"", data=null, dirty=false;
   let adminRole=sessionStorage.getItem("ganduvaru_admin_role")||"", adminUsername=sessionStorage.getItem("ganduvaru_admin_username")||"";
-  let editingProductIndex=-1, adminUsers=[];
+  let adminPermissions=JSON.parse(sessionStorage.getItem("ganduvaru_admin_permissions")||"[]");
+  let editingProductIndex=-1, adminUsers=[], adminOrders=[];
   let selectedSelector="", selectedTag="", inspectorInitial={};
 
   function toast(m){const e=$("#toast");e.textContent=m;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2300)}
@@ -10,6 +11,13 @@
   function clean(){dirty=false;$("#changeStatus").textContent="All changes published.";$("#changeStatus").style.color="#93d9ad"}
   function slug(s){return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")+"-"+Date.now().toString(36)}
   function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+  function hasPermission(p){return adminRole==="super_admin"||adminPermissions.includes("*")||adminPermissions.includes(p)}
+  function hasAnyPermission(list){return adminRole==="super_admin"||list.some(hasPermission)}
+  const permissionLabels={
+    products_add:"Add products",products_edit:"Edit products",products_delete:"Delete products",
+    categories_manage:"Categories & sub categories",promotions_manage:"Promotions",orders_view:"View orders",
+    site_content_manage:"Site content & navigation",contact_manage:"Contact & notifications"
+  };
   function toHex(v,fallback="#ffffff"){
     if(!v)return fallback;
     if(/^#[0-9a-f]{6}$/i.test(v))return v;
