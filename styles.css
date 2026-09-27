@@ -1375,7 +1375,7 @@ html{
   text-size-adjust:100%;
   scrollbar-gutter:stable;
 }
-body.intro-pending{overflow:hidden}
+body.intro-pending{overflow-x:hidden}
 button,a,input,select,textarea{touch-action:manipulation}
 img{max-width:100%}
 
@@ -2110,4 +2110,91 @@ img{max-width:100%}
   .storefront .hero-logo-stage:after{
     animation:none!important;
   }
+}
+
+
+/* === Native Scroll Stability Audit === */
+/* Keep vertical scrolling fully native and layout heights stable. */
+html{
+  scroll-behavior:auto;
+  overflow-y:auto;
+}
+body.storefront{
+  overflow-x:hidden;
+  overflow-y:visible;
+  min-height:100%;
+}
+body.storefront.intro-pending{
+  overflow-x:hidden;
+  overflow-y:visible;
+}
+
+/* content-visibility caused section height re-estimation and scroll jumps on some devices. */
+.storefront .shop,
+.storefront .service-band,
+.storefront .about,
+.storefront .contact,
+.storefront .site-footer{
+  content-visibility:visible;
+  contain-intrinsic-size:auto;
+}
+
+/* Reveal with transforms only; blur filters on many cards can make trackpad/mobile scroll stutter. */
+.storefront .luxury-reveal{
+  filter:none!important;
+  will-change:auto;
+}
+.storefront .luxury-reveal:not(.in-view){
+  transform:translate3d(0,16px,0);
+}
+.storefront .luxury-reveal.in-view{
+  transform:none;
+}
+
+/* The whole orbit stage should not be one giant filtered layer while scrolling. */
+.storefront .hero-logo-stage{
+  filter:none;
+}
+.storefront .hero-category-icon{
+  backface-visibility:hidden;
+  transform-style:preserve-3d;
+}
+
+/* Fixed blurred layers and live backdrop filters are expensive during touch scroll. */
+@media(max-width:900px){
+  .storefront .site-header,
+  .storefront .hero-card,
+  .storefront .hero-logo-core,
+  .storefront .hero-category-icon{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+  .storefront .site-header{
+    background:rgba(12,15,19,.97);
+  }
+  .storefront .hero-category-icon{
+    background:linear-gradient(145deg,rgba(34,38,46,.98),rgba(13,16,21,.99));
+    box-shadow:0 12px 30px rgba(0,0,0,.24),0 0 0 1px rgba(255,255,255,.025) inset;
+  }
+  .storefront .ambient{
+    filter:blur(70px);
+    opacity:.05;
+  }
+}
+
+/* Prevent horizontal carousels from stealing normal vertical scroll gestures. */
+.storefront .filters,
+.storefront .promotion-track,
+.storefront .product-thumbs{
+  touch-action:pan-x pan-y;
+}
+.storefront .hero-orbit-visual,
+.storefront .hero-logo-stage{
+  touch-action:pan-y;
+}
+
+/* Keep fixed overlays isolated; the public page stays scrollable after they disappear. */
+.luxury-intro{
+  overscroll-behavior:contain;
+  touch-action:none;
 }
