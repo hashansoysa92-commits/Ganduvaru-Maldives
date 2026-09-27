@@ -40,7 +40,7 @@
   function closeLayer(id,skipHistory=false){
     const el=$("#"+id); if(!el)return;
     el.classList.remove("open"); el.setAttribute("aria-hidden","true");
-    if(!$(".drawer.open").length) $("#backdrop").hidden=true;
+    if(!$$(".drawer.open").length) $("#backdrop").hidden=true;
     syncLayerLock();
     if(id==="cartDrawer" && !skipHistory && history.state?.ganduvaruCartOpen){
       try{history.back()}catch(e){}
