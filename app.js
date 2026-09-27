@@ -16,7 +16,17 @@
   function saveCart(){ localStorage.setItem("ganduvaru_cart",JSON.stringify(state.cart)); renderCart(); }
   function openLayer(id){ $("#"+id).classList.add("open"); $("#"+id).setAttribute("aria-hidden","false"); if(id.includes("Drawer")) $("#backdrop").hidden=false; }
   function closeLayer(id){ const el=$("#"+id); el.classList.remove("open"); el.setAttribute("aria-hidden","true"); if(!$$(".drawer.open").length) $("#backdrop").hidden=true; }
-  function getStore(id){ return state.data.stores.find(s=>s.id===id) || {}; }
+  function getStore(id){ return (state.data?.stores||[]).find(s=>s.id===id) || {}; }
+  const esc = v => String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  function productImages(p){
+    const all=[...(Array.isArray(p?.images)?p.images:[]),p?.image].map(x=>String(x||"").trim()).filter(Boolean);
+    return [...new Set(all)];
+  }
+  function productMedia(p,cls=""){
+    const imgs=productImages(p);
+    if(!imgs.length) return '<div class="product-fallback '+cls+'"><span class="fallback-icon">'+categoryIcon(p.category)+'</span><small>'+esc(p.category||"Product")+'</small></div>';
+    return '<img class="'+cls+'" src="'+esc(imgs[0])+'" alt="'+esc(p.name)+'" loading="lazy">';
+  }
 
   async function load(){
     try{
@@ -61,6 +71,8 @@
         <span class="store-link">Shop this store →</span>
       </article>`).join("");
 
+    renderPromotions();
+
     $("#contactGrid").innerHTML=d.stores.map(s=>`
       <article class="contact-card" data-store-contact="${s.id}">
         <h3>${s.name}</h3><p>${s.address||""}</p><p>${s.phone||""}${s.whatsapp && s.whatsapp!==s.phone ? " · WhatsApp "+s.whatsapp : ""}</p>${s.email?'<p>'+s.email+'</p>':""}
@@ -91,15 +103,73 @@
   function renderProducts(){
     const list=filtered(); $("#emptyState").hidden=!!list.length;
     $("#productGrid").innerHTML=list.map(p=>{
-      const s=getStore(p.store);
-      const media=p.image?'<img src="'+p.image+'" alt="'+p.name+'" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=&quot;product-fallback&quot;><span class=&quot;fallback-icon&quot;>'+categoryIcon(p.category)+'</span><small>'+p.category+'</small></div>\'">':'<div class="product-fallback"><span class="fallback-icon">'+categoryIcon(p.category)+'</span><small>'+p.category+'</small></div>';
-      return `<article class="product-card" data-product="${p.id}">
-        <div class="product-media">${media}${p.badge?'<span class="product-badge">'+p.badge+'</span>':""}</div>
-        <div class="product-info"><span class="product-store">${s.name||p.store}</span><h3>${p.name}</h3><p>${p.description||""}</p>
-          <div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add-button" data-add="${p.id}">Add to bag</button></div>
+      const s=getStore(p.store), imgs=productImages(p);
+      const media=productMedia(p);
+      const photoCount=imgs.length>1?'<span class="photo-count">'+imgs.length+' photos</span>':"";
+      return `<article class="product-card commerce-card" data-product="${esc(p.id)}" data-open-product="${esc(p.id)}" tabindex="0" aria-label="View ${esc(p.name)}">
+        <div class="product-media">${media}${p.badge?'<span class="product-badge">'+esc(p.badge)+'</span>':""}${photoCount}</div>
+        <div class="product-info">
+          <span class="product-store">${esc(s.name||p.store||"Ganduvaru")}</span>
+          <h3>${esc(p.name)}</h3>
+          <p>${esc(p.description||"")}</p>
+          <span class="product-stock">${esc(p.stock||"Ask for stock")}</span>
+          <div class="product-bottom"><span class="price">${money(p.price)}</span><button class="add-button" data-add="${esc(p.id)}">Add</button></div>
+          <button class="quick-view" data-open-product="${esc(p.id)}">View details</button>
         </div></article>`;
     }).join("");
     requestAnimationFrame(()=>{applyPageOverrides();refreshLuxuryMotion();});
+  }
+
+  function renderPromotions(){
+    const zone=$("#promotionZone"), track=$("#promotionTrack");
+    if(!zone||!track||!state.data)return;
+    const promos=(state.data.promotions||[]).map((promo,i)=>{
+      const product=state.data.products.find(p=>p.id===promo.productId);
+      return product?{promo,product,i}:null;
+    }).filter(Boolean);
+    zone.hidden=!promos.length;
+    if(!promos.length){track.innerHTML="";return}
+    track.innerHTML=promos.map(({promo,product})=>{
+      const s=getStore(product.store);
+      return `<article class="promotion-card" data-open-product="${esc(product.id)}" tabindex="0">
+        <div class="promotion-image">${productMedia(product,"promotion-product-image")}</div>
+        <div class="promotion-copy">
+          <span class="promotion-kicker">${esc(promo.label||product.badge||"PROMOTION")}</span>
+          <h3>${esc(product.name)}</h3>
+          <small>${esc(s.name||product.category||"Ganduvaru")}</small>
+          <strong>${money(product.price)}</strong>
+          <span class="promotion-link">View offer →</span>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  let activeProductId=null,activePhotoIndex=0;
+  function openProduct(id){
+    const p=state.products.find(x=>x.id===id); if(!p)return;
+    activeProductId=id;activePhotoIndex=0;
+    const s=getStore(p.store);
+    $("#productDetailStore").textContent=s.name||p.store||"Ganduvaru";
+    $("#productDetailName").textContent=p.name;
+    $("#productDetailPrice").textContent=money(p.price);
+    $("#productDetailStock").textContent=p.stock||"Ask for stock";
+    $("#productDetailDescription").textContent=p.description||"";
+    const badge=$("#productDetailBadge");
+    badge.hidden=!p.badge;badge.textContent=p.badge||"";
+    $("#productDetailAdd").dataset.add=p.id;
+    renderDetailGallery();
+    openLayer("productModal");
+  }
+  function renderDetailGallery(){
+    const p=state.products.find(x=>x.id===activeProductId);if(!p)return;
+    const imgs=productImages(p), main=$("#productDetailMain"), thumbs=$("#productThumbs");
+    if(!imgs.length){
+      main.innerHTML='<div class="product-fallback detail-fallback"><span class="fallback-icon">'+categoryIcon(p.category)+'</span><small>'+esc(p.category||"Product")+'</small></div>';
+      thumbs.innerHTML="";return;
+    }
+    activePhotoIndex=Math.max(0,Math.min(activePhotoIndex,imgs.length-1));
+    main.innerHTML='<img src="'+esc(imgs[activePhotoIndex])+'" alt="'+esc(p.name)+'">';
+    thumbs.innerHTML=imgs.map((src,i)=>'<button class="product-thumb'+(i===activePhotoIndex?" active":"")+'" data-detail-photo="'+i+'" aria-label="View photo '+(i+1)+'"><img src="'+esc(src)+'" alt=""></button>').join("");
   }
 
   function addToCart(id){
@@ -110,9 +180,12 @@
   function renderCart(){
     const items=state.cart.map(c=>({ ...c, p:state.products.find(p=>p.id===c.id) })).filter(x=>x.p);
     $("#cartCount").textContent=items.reduce((a,b)=>a+b.qty,0);
-    $("#cartItems").innerHTML=items.length?items.map(x=>`
-      <div class="cart-line"><div class="cart-thumb">${initials(x.p.name)}</div><div><h4>${x.p.name}</h4><p>${money(x.p.price)}</p>
-      <div class="qty"><button data-qty="${x.p.id}" data-d="-1">−</button><span>${x.qty}</span><button data-qty="${x.p.id}" data-d="1">+</button><button class="remove" data-remove="${x.p.id}">Remove</button></div></div><strong>${x.p.price==null?"—":money(x.p.price*x.qty)}</strong></div>`).join(""):'<div class="empty-state"><strong>Your bag is empty.</strong><span>Add products to begin.</span></div>';
+    $("#cartItems").innerHTML=items.length?items.map(x=>{
+      const imgs=productImages(x.p);
+      const thumb=imgs.length?'<div class="cart-thumb cart-thumb-image"><img src="'+esc(imgs[0])+'" alt=""></div>':'<div class="cart-thumb">'+initials(x.p.name)+'</div>';
+      return `
+      <div class="cart-line">${thumb}<div><h4>${esc(x.p.name)}</h4><p>${money(x.p.price)}</p>
+      <div class="qty"><button data-qty="${x.p.id}" data-d="-1">−</button><span>${x.qty}</span><button data-qty="${x.p.id}" data-d="1">+</button><button class="remove" data-remove="${x.p.id}">Remove</button></div></div><strong>${x.p.price==null?"—":money(x.p.price*x.qty)}</strong></div>`}).join(""):'<div class="empty-state"><strong>Your bag is empty.</strong><span>Add products to begin.</span></div>';
     const subtotal=items.reduce((n,x)=>n+(x.p.price||0)*x.qty,0); $("#cartSubtotal").textContent=money(subtotal);
   }
   function updateAccount(){
@@ -285,6 +358,7 @@
       [".hero-visual",80],
       [".section-heading",0],
       [".store-card",45],
+      [".promotion-card",28],
       [".product-card",35],
       [".service-grid article",55],
       [".about-card",0],
@@ -341,13 +415,17 @@
 
   function bind(){
     document.addEventListener("click",e=>{
-      const add=e.target.closest("[data-add]"); if(add) addToCart(add.dataset.add);
+      const add=e.target.closest("[data-add]"); if(add){ e.stopPropagation(); addToCart(add.dataset.add); }
+      const photo=e.target.closest("[data-detail-photo]"); if(photo){activePhotoIndex=Number(photo.dataset.detailPhoto)||0;renderDetailGallery();return;}
+      const opener=e.target.closest("[data-open-product]"); if(opener&&!add){openProduct(opener.dataset.openProduct);}
       const f=e.target.closest("[data-filter]"); if(f){ state.filter=f.dataset.filter; $$(".filter-chip").forEach(x=>x.classList.toggle("active",x===f)); renderProducts(); }
       const st=e.target.closest("[data-store]"); if(st){ state.filter=st.dataset.store; $("#shop").scrollIntoView(); renderProducts(); }
       const q=e.target.closest("[data-qty]"); if(q){ const line=state.cart.find(x=>x.id===q.dataset.qty); if(line){line.qty+=Number(q.dataset.d);if(line.qty<=0)state.cart=state.cart.filter(x=>x!==line);saveCart();}}
       const rm=e.target.closest("[data-remove]"); if(rm){state.cart=state.cart.filter(x=>x.id!==rm.dataset.remove);saveCart();}
       const cls=e.target.closest("[data-close]"); if(cls) closeLayer(cls.dataset.close);
     });
+    $("#productGrid").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-open-product]")){e.preventDefault();openProduct(e.target.dataset.openProduct)}});
+    $("#promotionTrack")?.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-open-product]")){e.preventDefault();openProduct(e.target.dataset.openProduct)}});
     $("#productSearch").addEventListener("input",e=>{state.search=e.target.value;renderProducts()});
     $("#sortSelect").addEventListener("change",e=>{state.sort=e.target.value;renderProducts()});
     $("#cartButton").onclick=()=>openLayer("cartDrawer"); $("#footerCart").onclick=()=>openLayer("cartDrawer");
