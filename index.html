@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260927-scrollfix" />
+  <link rel="stylesheet" href="styles.css?v=20260927-autohide-header" />
 </head>
 <body class="storefront intro-pending">
   <div class="luxury-intro" id="luxuryIntro" role="presentation" aria-hidden="true">
@@ -35,22 +35,24 @@
   <div class="ambient ambient-one"></div>
   <div class="ambient ambient-two"></div>
 
-  <div class="announcement" id="announcement">Free delivery available to selected Malé, Hulhumalé, airport & boat locations.</div>
+  <div class="top-chrome" id="topChrome">
+    <div class="announcement" id="announcement">Free delivery available to selected Malé, Hulhumalé, airport & boat locations.</div>
 
-  <header class="site-header">
-    <a class="brand official-brand" href="#home" aria-label="Ganduvaru Maldives PVT LTD home">
-      <img src="assets/ganduvaru-logo-official.svg" alt="Ganduvaru Maldives PVT LTD" />
-    </a>
+    <header class="site-header">
+      <a class="brand official-brand" href="#home" aria-label="Ganduvaru Maldives PVT LTD home">
+        <img src="assets/ganduvaru-logo-official.svg" alt="Ganduvaru Maldives PVT LTD" />
+      </a>
 
-    <nav class="desktop-nav" id="desktopNav" aria-label="Primary navigation"></nav>
+      <nav class="desktop-nav" id="desktopNav" aria-label="Primary navigation"></nav>
 
-    <div class="header-actions">
-      <button class="icon-button" id="searchToggle" aria-label="Search products">⌕</button>
-      <button class="account-button" id="accountButton">Sign in</button>
-      <button class="cart-button" id="cartButton">Bag <span id="cartCount">0</span></button>
-      <button class="menu-button" id="menuButton" aria-label="Open menu">☰</button>
-    </div>
-  </header>
+      <div class="header-actions">
+        <button class="icon-button" id="searchToggle" aria-label="Search products">⌕</button>
+        <button class="account-button" id="accountButton">Sign in</button>
+        <button class="cart-button" id="cartButton">Bag <span id="cartCount">0</span></button>
+        <button class="menu-button" id="menuButton" aria-label="Open menu">☰</button>
+      </div>
+    </header>
+  </div>
 
   <section class="promotion-zone" id="promotionZone" hidden aria-label="Current promotions">
     <div class="section-shell">
@@ -315,6 +317,6 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="config.js?v=20260927-luxury-audit"></script>
-  <script src="app.js?v=20260927-scrollfix2"></script>
+  <script src="app.js?v=20260927-autohide-header"></script>
 </body>
 </html>
