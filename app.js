@@ -24,7 +24,37 @@
   function productMedia(p,cls=""){
     const imgs=productImages(p);
     if(!imgs.length) return '<div class="product-fallback '+cls+'"><span class="fallback-icon">'+categoryIcon(p.category)+'</span><small>'+esc(p.category||"Product")+'</small></div>';
-    return '<img class="'+cls+'" src="'+esc(imgs[0])+'" alt="'+esc(p.name)+'" loading="lazy">';
+    return '<img class="'+cls+'" src="'+esc(imgs[0])+'" alt="'+esc(p.name)+'" loading="lazy" decoding="async">';
+  }
+
+  function initLuxuryIntro(){
+    const intro=$("#luxuryIntro");
+    if(!intro){document.body.classList.remove("intro-pending");return}
+    const editorMode=new URLSearchParams(location.search).get("editor")==="1";
+    if(editorMode){
+      intro.remove();
+      document.body.classList.remove("intro-pending");
+      return;
+    }
+    const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const exitDelay=reduced?180:2850;
+    const removeDelay=reduced?360:3700;
+    window.setTimeout(()=>{
+      intro.classList.add("intro-exit");
+      document.body.classList.remove("intro-pending");
+    },exitDelay);
+    window.setTimeout(()=>intro.remove(),removeDelay);
+  }
+
+  function contactIcon(type){
+    const icons={
+      phone:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 2.8 9.3 7c.4.6.3 1.3-.2 1.8l-1.6 1.5c1.1 2.3 3 4.2 5.3 5.3l1.5-1.6c.5-.5 1.2-.6 1.8-.2l4.2 2.7c.6.4.8 1.1.6 1.8-.5 1.6-2 2.7-3.7 2.7C9.4 21 3 14.6 3 6.8c0-1.7 1.1-3.2 2.7-3.7.7-.2 1.4.1 1.8.7Z" fill="none"/></svg>',
+      whatsapp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.4-4.4a8.4 8.4 0 1 1 15.6-4.4Z" fill="none"/><path d="M8.2 7.7c.2-.4.4-.4.7-.4h.4c.2 0 .4.1.5.5l.8 2c.1.3.1.5-.1.7l-.6.8c-.2.2-.2.4 0 .7.7 1.2 1.6 2.1 2.8 2.7.3.2.5.2.7-.1l.8-1c.2-.3.5-.3.8-.2l2 .9c.3.2.4.3.4.5 0 .3-.1 1.3-.7 1.8-.5.5-1.3.9-2.1.9-.6 0-1.3-.2-2.3-.6-1.3-.5-2.8-1.5-4-2.8-1.1-1.2-2.1-2.8-2.6-4.1-.4-1-.5-1.8-.3-2.3.1-.3.4-.7.8-1Z" stroke="none"/></svg>',
+      facebook:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.1 21v-8h2.8l.4-3h-3.2V8.1c0-.9.3-1.6 1.7-1.6h1.7V3.8c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2H8v3h2.8v8h3.3Z" stroke="none"/></svg>',
+      instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none"/><circle cx="12" cy="12" r="4" fill="none"/><circle cx="17.5" cy="6.7" r="1" stroke="none"/></svg>',
+      tiktok:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.3 3v10.8a4.6 4.6 0 1 1-3.9-4.6v3.1a1.7 1.7 0 1 0 1 1.5V3h2.9Zm0 0c.3 2.3 1.7 3.8 4 4.2v3c-1.6-.1-3-.7-4-1.6" fill="none"/></svg>'
+    };
+    return icons[type]||"";
   }
 
   async function load(){
@@ -67,19 +97,18 @@
     renderPromotions();
 
     const contacts=[
-      site.contactPhone ? {label:"Contact Number",value:site.contactPhone,href:"tel:"+digits(site.contactPhone),action:"Call"} : null,
-      site.contactWhatsApp ? {label:"WhatsApp Number",value:site.contactWhatsApp,href:"https://wa.me/"+digits(site.contactWhatsApp),action:"WhatsApp",external:true} : null,
-      site.contactFacebook ? {label:"Facebook",value:"Facebook",href:site.contactFacebook,action:"Open",external:true} : null,
-      site.contactInstagram ? {label:"Instagram",value:"Instagram",href:site.contactInstagram,action:"Open",external:true} : null,
-      site.contactTikTok ? {label:"TikTok",value:"TikTok",href:site.contactTikTok,action:"Open",external:true} : null
+      site.contactPhone ? {type:"phone",label:"Call "+site.contactPhone,href:"tel:"+digits(site.contactPhone)} : null,
+      site.contactWhatsApp ? {type:"whatsapp",label:"WhatsApp "+site.contactWhatsApp,href:"https://wa.me/"+digits(site.contactWhatsApp),external:true} : null,
+      site.contactFacebook ? {type:"facebook",label:"Facebook",href:site.contactFacebook,external:true} : null,
+      site.contactInstagram ? {type:"instagram",label:"Instagram",href:site.contactInstagram,external:true} : null,
+      site.contactTikTok ? {type:"tiktok",label:"TikTok",href:site.contactTikTok,external:true} : null
     ].filter(Boolean);
 
     $("#contactGrid").innerHTML=contacts.length?contacts.map(x=>`
-      <article class="contact-card contact-method">
-        <span class="contact-method-label">${esc(x.label)}</span>
-        <h3>${esc(x.value)}</h3>
-        <a class="small-button" href="${esc(x.href)}"${x.external?' target="_blank" rel="noopener"':""}>${esc(x.action)}</a>
-      </article>`).join(""):'<div class="empty-state"><strong>Contact details coming soon.</strong></div>';
+      <a class="contact-icon-link contact-icon-${esc(x.type)}" href="${esc(x.href)}" aria-label="${esc(x.label)}" title="${esc(x.label)}"${x.external?' target="_blank" rel="noopener"':""}>
+        ${contactIcon(x.type)}
+        <span class="sr-only">${esc(x.label)}</span>
+      </a>`).join(""):'<div class="empty-state"><strong>Contact details coming soon.</strong></div>';
 
     [["#footerFacebook",site.contactFacebook],["#footerInstagram",site.contactInstagram],["#footerTikTok",site.contactTikTok]].forEach(([selector,url])=>{
       const el=$(selector); if(!el)return; el.hidden=!url; if(url)el.href=url;
@@ -361,7 +390,7 @@
       [".product-card",35],
       [".service-grid article",55],
       [".about-card",0],
-      [".contact-card",45],
+      [".contact-icon-link",45],
       [".footer-grid > div",40]
     ];
     groups.forEach(([selector,step])=>{
@@ -395,8 +424,14 @@
 
     const header=document.querySelector(".site-header");
     const syncHeader=()=>header?.classList.toggle("scrolled",window.scrollY>28);
+    let headerTick=false;
+    const onHeaderScroll=()=>{
+      if(headerTick)return;
+      headerTick=true;
+      requestAnimationFrame(()=>{syncHeader();headerTick=false});
+    };
     syncHeader();
-    window.addEventListener("scroll",syncHeader,{passive:true});
+    window.addEventListener("scroll",onHeaderScroll,{passive:true});
 
     const hero=document.querySelector(".hero-visual");
     const card=document.querySelector(".hero-card-main");
@@ -435,5 +470,6 @@
     $("#searchToggle").onclick=()=>{$("#shop").scrollIntoView();setTimeout(()=>$("#productSearch").focus(),400)};
     $("#otpModeNotice").textContent=CFG.otpRequestUrl?"SMS OTP is enabled.":"Demo OTP mode is enabled until an SMS provider is connected.";
   }
+  initLuxuryIntro();
   load().then(()=>{initLuxuryMotion();startEditorBridge();});
 })();
