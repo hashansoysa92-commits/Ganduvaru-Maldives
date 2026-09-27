@@ -396,6 +396,14 @@
   }
   async function save(){
     syncContent();
+    const productCategoryNames=(data.productCategories||[]).map(x=>String(x.name||"").trim());
+    if(productCategoryNames.some(x=>x.length<2)){toast("Product category names must be at least 2 characters");return}
+    if(new Set(productCategoryNames.map(x=>x.toLowerCase())).size!==productCategoryNames.length){toast("Product category names must be unique");return}
+    for(const cat of (data.productCategories||[])){
+      const subs=(cat.subcategories||[]).map(x=>String(x.name||"").trim());
+      if(subs.some(x=>x.length<2)){toast("Sub category names must be at least 2 characters");return}
+      if(new Set(subs.map(x=>x.toLowerCase())).size!==subs.length){toast("Sub category names must be unique within each category");return}
+    }
     const categoryNames=(data.promotionCategories||[]).map(x=>String(x.name||"").trim());
     if(categoryNames.some(x=>x.length<2)){toast("Promotion category names must be at least 2 characters");return}
     const lowered=categoryNames.map(x=>x.toLowerCase());
