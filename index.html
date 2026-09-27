@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260927-promo-categories" />
+  <link rel="stylesheet" href="styles.css?v=20260927-fullaudit" />
 </head>
 <body class="storefront intro-pending">
   <div class="luxury-intro" id="luxuryIntro" role="presentation" aria-hidden="true">
@@ -62,6 +62,13 @@
         <h2>Choose an offer. Discover what’s inside.</h2>
       </div>
       <div class="promotion-category-nav" id="promotionCategories" role="tablist" aria-label="Promotion categories"></div>
+      <div class="promotion-carousel-bar" id="promotionCarouselBar" hidden>
+        <span class="promotion-carousel-count" id="promotionCarouselCount">0 items</span>
+        <div class="promotion-carousel-actions">
+          <button class="promotion-arrow" id="promotionPrev" type="button" aria-label="Previous promotion items">‹</button>
+          <button class="promotion-arrow" id="promotionNext" type="button" aria-label="Next promotion items">›</button>
+        </div>
+      </div>
       <div class="promotion-track promotion-track-switching" id="promotionTrack"></div>
     </div>
   </section>
@@ -210,13 +217,21 @@
         <strong>Customer</strong>
         <button class="footer-link" id="footerAccount">Customer login</button>
         <button class="footer-link" id="footerCart">Shopping bag</button>
-        <a href="admin.html">Admin</a>
       </div>
       <div>
         <strong>Follow</strong>
-        <a id="footerFacebook" href="#" target="_blank" rel="noopener">Facebook</a>
-        <a id="footerInstagram" href="#" target="_blank" rel="noopener">Instagram</a>
-        <a id="footerTikTok" href="#" target="_blank" rel="noopener">TikTok</a>
+        <a class="footer-social-link" id="footerWhatsApp" href="#" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <span class="footer-social-mark">WA</span><span>WhatsApp</span>
+        </a>
+        <a class="footer-social-link" id="footerFacebook" href="#" target="_blank" rel="noopener" aria-label="Facebook">
+          <span class="footer-social-mark">f</span><span>Facebook</span>
+        </a>
+        <a class="footer-social-link" id="footerInstagram" href="#" target="_blank" rel="noopener" aria-label="Instagram">
+          <span class="footer-social-mark">◎</span><span>Instagram</span>
+        </a>
+        <a class="footer-social-link" id="footerTikTok" href="#" target="_blank" rel="noopener" aria-label="TikTok">
+          <span class="footer-social-mark">♪</span><span>TikTok</span>
+        </a>
       </div>
     </div>
     <div class="section-shell footer-bottom">
@@ -319,6 +334,6 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="config.js?v=20260927-luxury-audit"></script>
-  <script src="app.js?v=20260927-promo-categories"></script>
+  <script src="app.js?v=20260927-fullaudit"></script>
 </body>
 </html>
