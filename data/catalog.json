@@ -53,10 +53,14 @@
       "price": 1690,
       "badge": "POPULAR",
       "description": "Wireless Marshall headphones with 30+ hours of playback.",
-      "image": "",
+      "image": "https://api.devmusicalindia.in/assets_thumbnail/1562398939098-MAJOR%20III%20BT%20BK,MAJOR%20III%20BLUETOOTH%20BLACK%20OVER%20EAR%20HEADPHONES.jpg",
       "featured": true,
       "stock": "Limited stock",
-      "images": []
+      "images": [
+        "https://api.devmusicalindia.in/assets_thumbnail/1562398939098-MAJOR%20III%20BT%20BK,MAJOR%20III%20BLUETOOTH%20BLACK%20OVER%20EAR%20HEADPHONES.jpg",
+        "https://api.devmusicalindia.in/assets_thumbnail/1562398944526-31.MAJOR%20III%20BT%20BK,MAJOR%20III%20BLUETOOTH%20BLACK%20OVER%20EAR%20HEADPHONES%20(2).jpg",
+        "https://api.devmusicalindia.in/assets_thumbnail/1562398950239-31.MAJOR%20III%20BT%20BK,MAJOR%20III%20BLUETOOTH%20BLACK%20OVER%20EAR%20HEADPHONES%20(3).jpg"
+      ]
     },
     {
       "id": "marshall-major-iv",
@@ -66,10 +70,14 @@
       "price": 1890,
       "badge": "POPULAR",
       "description": "Iconic wireless headphones with up to 80+ hours of playback.",
-      "image": "",
+      "image": "https://images.ctfassets.net/javen7msabdh/4IOanxuLYmNb8NSEtp19U4/ed35fedbb1f43c43916f11f1f0ad0602/major-iv-black-front-mobile-1.jpeg?w=1024&fm=jpg&q=85",
       "featured": true,
       "stock": "Limited stock",
-      "images": []
+      "images": [
+        "https://images.ctfassets.net/javen7msabdh/4IOanxuLYmNb8NSEtp19U4/ed35fedbb1f43c43916f11f1f0ad0602/major-iv-black-front-mobile-1.jpeg?w=1024&fm=jpg&q=85",
+        "https://images.ctfassets.net/javen7msabdh/48UOsmTG0nIMBf3EgjUT1H/88100b2d98b00365af1e1ad474820358/major-iv-black-side_view-mobile-3.jpeg?w=1024&fm=jpg&q=85",
+        "https://images.ctfassets.net/javen7msabdh/bqbxQthaNtnCBQHZg1GgK/c59a7f6e47a62117666a0a500a5cbb0b/major-iv-black-front_standing-mobile-5.jpeg?w=1024&fm=jpg&q=85"
+      ]
     },
     {
       "id": "apple-pencil-2",
@@ -79,10 +87,13 @@
       "price": 1000,
       "badge": "SPECIAL",
       "description": "Precision stylus for compatible iPad models.",
-      "image": "",
+      "image": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MU8F2?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=L1VmMUh5SDdMT3hqbTdraXdQb3JSUWtuVHYzMERCZURia3c5SzJFOTlPaGs0L0NuK3FMQUlmekpVaFVHWXZKQ2duMVUwMDdhR2NIUGFBTk5SLzRpdHc",
       "featured": true,
       "stock": "In stock",
-      "images": []
+      "images": [
+        "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MU8F2?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=L1VmMUh5SDdMT3hqbTdraXdQb3JSUWtuVHYzMERCZURia3c5SzJFOTlPaGs0L0NuK3FMQUlmekpVaFVHWXZKQ2duMVUwMDdhR2NIUGFBTk5SLzRpdHc",
+        "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MU8F2_AV1?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=a2cycnRxTFhHUGUrWGxuTHR4Z243amZCOGNZY05sZThBK25OK28wQk0vMWs0L0NuK3FMQUlmekpVaFVHWXZKQ3BwVmpuc0hrZlRTeS9CU0NXRnBVMXc"
+      ]
     },
     {
       "id": "apple-pencil-pro",
@@ -92,10 +103,13 @@
       "price": 1800,
       "badge": "NEW",
       "description": "Advanced Apple Pencil experience for compatible iPad models.",
-      "image": "",
+      "image": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MX2D3?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=aERwRkppV2pTZWx2MDU5ek9FWVpkd2tuVHYzMERCZURia3c5SzJFOTlPamtyK21QQVlqVGgrcGQ5Uy9BWWRGOUU5TjEzNDVxWGZyenF5K251RnVTZXc",
       "featured": true,
       "stock": "In stock",
-      "images": []
+      "images": [
+        "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MX2D3?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=aERwRkppV2pTZWx2MDU5ek9FWVpkd2tuVHYzMERCZURia3c5SzJFOTlPamtyK21QQVlqVGgrcGQ5Uy9BWWRGOUU5TjEzNDVxWGZyenF5K251RnVTZXc",
+        "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MX2D3_AV1?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=ZTdZS0RqK3Y0dWFXcjAxZHhpWHV0emZCOGNZY05sZThBK25OK28wQk0vM2tyK21QQVlqVGgrcGQ5Uy9BWWRGOTR2Ym9SQ0htOXRDTUl5L2dSWHpDYlE"
+      ]
     },
     {
       "id": "apple-pencil-usbc",
@@ -105,10 +119,13 @@
       "price": 1290,
       "badge": "",
       "description": "USB-C Apple Pencil for writing, note-taking and creative work.",
-      "image": "",
+      "image": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MUWA3?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=dFZURmpjMWNqeXhjb0NWMDZVVnNsZ2tuVHYzMERCZURia3c5SzJFOTlPanBnR2pXWTRHU3BEaEVISG4vR2NHalJOdUZTK2hyNlk4dTdFSXp2TXpTMnc",
       "featured": false,
       "stock": "In stock",
-      "images": []
+      "images": [
+        "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MUWA3?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=dFZURmpjMWNqeXhjb0NWMDZVVnNsZ2tuVHYzMERCZURia3c5SzJFOTlPanBnR2pXWTRHU3BEaEVISG4vR2NHalJOdUZTK2hyNlk4dTdFSXp2TXpTMnc",
+        "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MUWA3_AV1?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=YjBoWHN0U2plNDlWbUFUUnRxcHExamZCOGNZY05sZThBK25OK28wQk0vM3BnR2pXWTRHU3BEaEVISG4vR2NHanUzcnJrL2JRWUltc21rdkR0SC9Ed0E"
+      ]
     },
     {
       "id": "eufycam-2-pro",
@@ -118,10 +135,12 @@
       "price": 7500,
       "badge": "OFFER",
       "description": "Wire-free 2K home security camera system with local storage.",
-      "image": "",
+      "image": "https://lh3.googleusercontent.com/FLTfNffkcPa6odRUbw-n9iHnhOxi456BwhmX5JclOhfTSn4HgX4BsvIPzNxsJakKNOe-j_3hOyRo4-fvJ-uxoYSsjz07JMIOfLf1N4Pcm94ODlugx7q0XJHNvQm7FElwBsUdzR8BA8IDaLrqDHoacj3E8vHmduJi6PTmDsSguSspKSOWfXf2cjSPHCS4uQ",
       "featured": true,
       "stock": "Limited stock",
-      "images": []
+      "images": [
+        "https://lh3.googleusercontent.com/FLTfNffkcPa6odRUbw-n9iHnhOxi456BwhmX5JclOhfTSn4HgX4BsvIPzNxsJakKNOe-j_3hOyRo4-fvJ-uxoYSsjz07JMIOfLf1N4Pcm94ODlugx7q0XJHNvQm7FElwBsUdzR8BA8IDaLrqDHoacj3E8vHmduJi6PTmDsSguSspKSOWfXf2cjSPHCS4uQ"
+      ]
     },
     {
       "id": "huawei-mediapad-t5",
@@ -131,10 +150,12 @@
       "price": 1999,
       "badge": "OFFER",
       "description": "3GB RAM, 32GB storage and 5100mAh battery.",
-      "image": "",
+      "image": "https://www.techspot.com/images/products/2018/tablets/org/2020-01-30-product-3.jpg",
       "featured": true,
       "stock": "Limited stock",
-      "images": []
+      "images": [
+        "https://www.techspot.com/images/products/2018/tablets/org/2020-01-30-product-3.jpg"
+      ]
     },
     {
       "id": "blackview-wave-10c",
@@ -144,10 +165,12 @@
       "price": null,
       "badge": "NEW",
       "description": "4GB RAM, 128GB storage, 5000mAh battery and 32MP camera.",
-      "image": "",
+      "image": "https://img.diylooks.com/upload/store/detail_raw/MPH3117_B1.jpg",
       "featured": true,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://img.diylooks.com/upload/store/detail_raw/MPH3117_B1.jpg"
+      ]
     },
     {
       "id": "meizu-note-22",
@@ -157,10 +180,14 @@
       "price": null,
       "badge": "NEW",
       "description": "8GB RAM, 1TB storage, 5000mAh battery and 108MP camera.",
-      "image": "",
+      "image": "https://shopping.linncomputer.com/images/item/11_1780561306392.png",
       "featured": true,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://shopping.linncomputer.com/images/item/11_1780561306392.png",
+        "https://shopping.linncomputer.com/images/item/22_1780561306394.png",
+        "https://shopping.linncomputer.com/images/item/33_1780561306395.png"
+      ]
     },
     {
       "id": "sonifer-kitchen",
@@ -170,10 +197,12 @@
       "price": null,
       "badge": "NEW RANGE",
       "description": "Kitchen and home appliances selected for everyday convenience.",
-      "image": "",
+      "image": "https://sonifer.com/wp-content/uploads/2024/08/H6416ba915461467abb20aaee2691a30fE-800x800.jpeg",
       "featured": true,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://sonifer.com/wp-content/uploads/2024/08/H6416ba915461467abb20aaee2691a30fE-800x800.jpeg"
+      ]
     },
     {
       "id": "geepas-ac-12000",
@@ -183,10 +212,13 @@
       "price": null,
       "badge": "FEATURED",
       "description": "Inverter air conditioning designed for powerful everyday cooling.",
-      "image": "",
+      "image": "https://uae.geepas.com/cdn/shop/files/WhatsAppImage2025-04-08at1.20.15PM.jpg?v=1744282438&width=1214",
       "featured": true,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://uae.geepas.com/cdn/shop/files/WhatsAppImage2025-04-08at1.20.15PM.jpg?v=1744282438&width=1214",
+        "https://uae.geepas.com/cdn/shop/files/GACS1225CUE-1.jpg?v=1744282454&width=1214"
+      ]
     },
     {
       "id": "sanford-geepas-hair",
@@ -196,10 +228,13 @@
       "price": null,
       "badge": "NEW",
       "description": "Hair styling and personal care electronics for everyday routines.",
-      "image": "",
+      "image": "https://damoo.ae/cdn/shop/files/71-pc014s1L-Photoroom_1.webp?v=1746633743&width=1024",
       "featured": false,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://damoo.ae/cdn/shop/files/71-pc014s1L-Photoroom_1.webp?v=1746633743&width=1024",
+        "https://damoo.ae/cdn/shop/files/ghf86054_2-Photoroom_1.webp?v=1746633743&width=1024"
+      ]
     },
     {
       "id": "dr-rashel-skincare",
@@ -209,10 +244,13 @@
       "price": null,
       "badge": "AUTHENTIC",
       "description": "Hydration, brightening and care products from the Dr.Rashel range.",
-      "image": "",
+      "image": "https://dr-rashel-official.com/cdn/shop/products/drrashel-vc-brightening-anti-aging-skin-care-set-pack-of-5-in-gift-box-600620.jpg?v=1655049424&width=713",
       "featured": true,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://dr-rashel-official.com/cdn/shop/products/drrashel-vc-brightening-anti-aging-skin-care-set-pack-of-5-in-gift-box-600620.jpg?v=1655049424&width=713",
+        "https://dr-rashel-official.com/cdn/shop/products/drrashel-vc-brightening-anti-aging-skin-care-set-pack-of-5-in-gift-box-292677.jpg?v=1655049426&width=713"
+      ]
     },
     {
       "id": "cosrx-skincare",
@@ -222,10 +260,13 @@
       "price": null,
       "badge": "K-BEAUTY",
       "description": "Popular Korean skincare favorites available through Zaara Beauty Care.",
-      "image": "",
+      "image": "https://www.cosrx.com/cdn/shop/files/snail-co_1024x1024.png?v=1789693978",
       "featured": true,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://www.cosrx.com/cdn/shop/files/snail-co_1024x1024.png?v=1789693978",
+        "https://www.cosrx.com/cdn/shop/files/advanced-snail-peptide-eye-cream-cosrx-official-1_1024x1024.png?v=1724835637"
+      ]
     },
     {
       "id": "beauty-of-joseon",
@@ -235,10 +276,13 @@
       "price": null,
       "badge": "K-BEAUTY",
       "description": "Korean skincare products curated for a balanced daily routine.",
-      "image": "",
+      "image": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/343bf94a9d8c45c2ad6d55f55f4e8602~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
       "featured": true,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/343bf94a9d8c45c2ad6d55f55f4e8602~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192",
+        "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/3cdda43ae577405f95fd3fd8f63b6700~tplv-fhlh96nyum-crop-webp:800:800.webp?dr=12190&t=555f072d&ps=933b5bde&shp=c940a200&shcp=9b759fb9&idc=useast5&from=3376456192"
+      ]
     },
     {
       "id": "la-roche-posay",
@@ -248,10 +292,12 @@
       "price": null,
       "badge": "FEATURED",
       "description": "Daily skincare options from the La Roche-Posay range.",
-      "image": "",
+      "image": "https://admin.7days-shop.com/data/editor_upload/450559810_919556393548523_8244767226009409104_n.jpeg",
       "featured": false,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://admin.7days-shop.com/data/editor_upload/450559810_919556393548523_8244767226009409104_n.jpeg"
+      ]
     },
     {
       "id": "medicube",
@@ -261,10 +307,13 @@
       "price": null,
       "badge": "NEW",
       "description": "Medicube skincare selection available from Zaara Beauty Care.",
-      "image": "",
+      "image": "https://medicube.us/cdn/shop/files/pinkgoldDuo_00_44a6112e-96c0-4996-8e10-df3af5b269c5_large.jpg?v=1768376705",
       "featured": false,
       "stock": "Ask for price",
-      "images": []
+      "images": [
+        "https://medicube.us/cdn/shop/files/pinkgoldDuo_00_44a6112e-96c0-4996-8e10-df3af5b269c5_large.jpg?v=1768376705",
+        "https://medicube.us/cdn/shop/files/Affordable_Glass_Glow_7-Day_Skincare_Set_00_large.jpg?v=1768382747"
+      ]
     }
   ],
   "promotions": []
