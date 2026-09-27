@@ -440,23 +440,70 @@
       sub.name=e.target.value;mark();
     }
   });
-  document.addEventListener("click",e=>{
+  document.addEventListener("click",async e=>{
     if(!data)return;
-    const tab=e.target.closest("[data-admin-tab]");if(tab){$$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));$$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab))}
-    const dt=e.target.closest("[data-del-tab]");if(dt&&adminRole==="super_admin"){data.tabs.splice(Number(dt.dataset.delTab),1);renderTabs();mark()}
-    const ep=e.target.closest("[data-edit-product]");if(ep&&adminRole==="super_admin"){loadProductForm(Number(ep.dataset.editProduct))}
-    const dp=e.target.closest("[data-del-product]");if(dp&&adminRole==="super_admin"){data.products.splice(Number(dp.dataset.delProduct),1);editingProductIndex=-1;clearProductForm();renderProducts();renderPromotions();mark()}
-    const dpc=e.target.closest("[data-del-promo-cat]");if(dpc&&adminRole==="super_admin"){
+    const tab=e.target.closest("[data-admin-tab]");
+    if(tab&&!tab.hidden){
+      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));
+      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab));
+      if(tab.dataset.adminTab==="orders"&&hasPermission("orders_view"))loadOrders();
+    }
+
+    const dt=e.target.closest("[data-del-tab]");
+    if(dt&&hasPermission("site_content_manage")){data.tabs.splice(Number(dt.dataset.delTab),1);renderTabs();mark()}
+
+    const ep=e.target.closest("[data-edit-product]");
+    if(ep&&hasPermission("products_edit"))loadProductForm(Number(ep.dataset.editProduct));
+
+    const dp=e.target.closest("[data-del-product]");
+    if(dp&&hasPermission("products_delete")){
+      const i=Number(dp.dataset.delProduct),p=data.products[i];if(!p)return;
+      if(!confirm('Remove "'+p.name+'" from the storefront?'))return;
+      try{
+        const result=await rpc("ganduvaru_admin_product_action",{p_token:sessionToken,p_action:"delete",p_product_id:p.id,p_product:null});
+        if(!result?.ok)throw new Error(result?.message||"Could not remove product");
+        await loadCatalog();clearProductForm();renderAll();toast("Product removed");
+      }catch(err){toast(err.message||"Could not remove product")}
+    }
+
+    const dc=e.target.closest("[data-del-category]");
+    if(dc&&hasPermission("categories_manage")){
+      const i=Number(dc.dataset.delCategory),cat=data.productCategories?.[i];if(!cat)return;
+      const used=data.products.filter(p=>p.categoryId===cat.id).length;
+      if(used)return toast("Move or remove the "+used+" product"+(used===1?"":"s")+" in this category first");
+      data.productCategories.splice(i,1);renderCategories();mark();
+    }
+
+    const asc=e.target.closest("[data-add-subcategory]");
+    if(asc&&hasPermission("categories_manage")){
+      const ci=Number(asc.dataset.addSubcategory),cat=data.productCategories?.[ci],input=$('[data-new-subcategory="'+ci+'"]');
+      const name=input?.value.trim();if(!cat||!name)return toast("Enter a sub category name");
+      if(cat.subcategories.some(x=>String(x.name).toLowerCase()===name.toLowerCase()))return toast("Sub category already exists");
+      cat.subcategories.push({id:"sub-"+slug(name),name});if(input)input.value="";renderCategories();mark();
+    }
+
+    const dsc=e.target.closest("[data-del-subcategory]");
+    if(dsc&&hasPermission("categories_manage")){
+      const [ci,si]=dsc.dataset.delSubcategory.split(":").map(Number),cat=data.productCategories?.[ci],sub=cat?.subcategories?.[si];if(!sub)return;
+      const used=data.products.filter(p=>p.categoryId===cat.id&&p.subcategoryId===sub.id).length;
+      if(used)return toast("Move "+used+" product"+(used===1?"":"s")+" out of this sub category first");
+      cat.subcategories.splice(si,1);renderCategories();mark();
+    }
+
+    const dpc=e.target.closest("[data-del-promo-cat]");
+    if(dpc&&hasPermission("promotions_manage")){
       const i=Number(dpc.dataset.delPromoCat),cat=data.promotionCategories?.[i];if(!cat)return;
       const used=data.promotions.filter(pr=>pr.categoryId===cat.id).length;
       if(used&&!confirm('Remove "'+cat.name+'" and its '+used+' promotion item'+(used===1?'':'s')+'?'))return;
       data.promotions=data.promotions.filter(pr=>pr.categoryId!==cat.id);
-      data.promotionCategories.splice(i,1);
-      renderPromotions();mark();
+      data.promotionCategories.splice(i,1);renderPromotions();mark();
     }
-    const dpr=e.target.closest("[data-del-promo]");if(dpr&&adminRole==="super_admin"){data.promotions.splice(Number(dpr.dataset.delPromo),1);renderPromotions();mark()}
+    const dpr=e.target.closest("[data-del-promo]");
+    if(dpr&&hasPermission("promotions_manage")){data.promotions.splice(Number(dpr.dataset.delPromo),1);renderPromotions();mark()}
+
     const ta=e.target.closest("[data-toggle-admin]");if(ta&&adminRole==="super_admin")toggleAdmin(Number(ta.dataset.toggleAdmin),ta.dataset.next==="true");
     const ra=e.target.closest("[data-reset-admin]");if(ra&&adminRole==="super_admin")resetAdminPassword(Number(ra.dataset.resetAdmin));
+    const sap=e.target.closest("[data-save-admin-permissions]");if(sap&&adminRole==="super_admin")saveAdminPermissions(Number(sap.dataset.saveAdminPermissions));
   });
 
   $("#loginBtn").onclick=login;
