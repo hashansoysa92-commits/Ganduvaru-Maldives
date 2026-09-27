@@ -146,13 +146,12 @@
   }
 
   function renderAll(){
-    data.pageOverrides=data.pageOverrides||{}; data.promotions=data.promotions||[]; data.stores=data.stores||[]; data.products=data.products||[];
+    data.pageOverrides=data.pageOverrides||{}; data.promotions=data.promotions||[]; data.products=data.products||[]; data.site=data.site||{};
     if(adminRole==="super_admin"){
-      $("#siteAnnouncement").value=data.site?.announcement||"";$("#siteHeroTitle").value=data.site?.heroTitle||"";$("#siteHeroSubtitle").value=data.site?.heroSubtitle||"";$("#siteAboutTitle").value=data.site?.aboutTitle||"";$("#siteAboutText").value=data.site?.aboutText||"";$("#siteOrderWhatsApp").value=data.site?.orderWhatsApp||"";
-      renderTabs();renderStores();renderPromotions();
+      $("#siteAnnouncement").value=data.site.announcement||"";$("#siteHeroTitle").value=data.site.heroTitle||"";$("#siteHeroSubtitle").value=data.site.heroSubtitle||"";$("#siteAboutTitle").value=data.site.aboutTitle||"";$("#siteAboutText").value=data.site.aboutText||"";$("#siteOrderWhatsApp").value=data.site.orderWhatsApp||"";
+      $("#contactPhone").value=data.site.contactPhone||"";$("#contactWhatsApp").value=data.site.contactWhatsApp||"";$("#contactFacebook").value=data.site.contactFacebook||"";$("#contactInstagram").value=data.site.contactInstagram||"";$("#contactTikTok").value=data.site.contactTikTok||"";
+      renderTabs();renderPromotions();
     }
-    const storeOptions=['<option value="">General / Unassigned</option>',...data.stores.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>')].join("");
-    $("#pStore").innerHTML=storeOptions;
     renderProducts();
     if(adminRole==="super_admin") setTimeout(sendEditorData,120);
   }
@@ -187,17 +186,20 @@
     const box=$("#adminsList");if(!box)return;
     box.innerHTML=adminUsers.map(u=>'<div class="admin-row"><div><strong>'+esc(u.username)+'</strong><small>'+(u.role==="super_admin"?"Super Admin":"Product Admin")+' · '+(u.active?"Active":"Disabled")+'</small></div><div class="admin-row-actions"><button class="mini-btn" data-reset-admin="'+u.id+'">Reset password</button>'+(u.role!=="super_admin"?'<button class="'+(u.active?"danger-btn":"mini-btn")+'" data-toggle-admin="'+u.id+'" data-next="'+(!u.active)+'">'+(u.active?"Disable":"Enable")+'</button>':"")+'</div></div>').join("");
   }
-  function renderStores(){
-    $("#storesList").innerHTML=data.stores.map((s,i)=>'<div class="admin-row" style="display:block"><strong>'+esc(s.name)+'</strong><div class="form-grid" style="margin-top:10px">'+
-      '<label>Name<input data-store-field="'+i+':name" value="'+esc(s.name)+'"></label>'+
-      '<label>Phone<input data-store-field="'+i+':phone" value="'+esc(s.phone||"")+'"></label>'+
-      '<label>WhatsApp<input data-store-field="'+i+':whatsapp" value="'+esc(s.whatsapp||"")+'"></label>'+
-      '<label>Email<input data-store-field="'+i+':email" value="'+esc(s.email||"")+'"></label>'+
-      '<label class="span-2">Address<input data-store-field="'+i+':address" value="'+esc(s.address||"")+'"></label>'+
-      '<label class="span-2">Summary<textarea rows="2" data-store-field="'+i+':summary">'+esc(s.summary||"")+'</textarea></label>'+
-      '<label class="span-2">Facebook<input data-store-field="'+i+':facebook" value="'+esc(s.facebook||"")+'"></label></div><button class="danger-btn" style="margin-top:10px" data-del-store="'+i+'">Remove store</button></div>').join("")
+  function syncContent(){
+    data.site=data.site||{};
+    data.site.announcement=$("#siteAnnouncement").value;
+    data.site.heroTitle=$("#siteHeroTitle").value;
+    data.site.heroSubtitle=$("#siteHeroSubtitle").value;
+    data.site.aboutTitle=$("#siteAboutTitle").value;
+    data.site.aboutText=$("#siteAboutText").value;
+    data.site.orderWhatsApp=$("#siteOrderWhatsApp").value;
+    data.site.contactPhone=$("#contactPhone").value.trim();
+    data.site.contactWhatsApp=$("#contactWhatsApp").value.trim();
+    data.site.contactFacebook=$("#contactFacebook").value.trim();
+    data.site.contactInstagram=$("#contactInstagram").value.trim();
+    data.site.contactTikTok=$("#contactTikTok").value.trim();
   }
-  function syncContent(){data.site.announcement=$("#siteAnnouncement").value;data.site.heroTitle=$("#siteHeroTitle").value;data.site.heroSubtitle=$("#siteHeroSubtitle").value;data.site.aboutTitle=$("#siteAboutTitle").value;data.site.aboutText=$("#siteAboutText").value;data.site.orderWhatsApp=$("#siteOrderWhatsApp").value}
   async function save(){
     syncContent(); $("#saveBtn").disabled=true;
     try{
@@ -213,8 +215,7 @@
 
   document.addEventListener("input",e=>{
     if(!data)return;
-    if(adminRole==="super_admin"&&e.target.closest(".admin-section[data-admin-section='content']"))mark();
-    if(adminRole==="super_admin"&&e.target.dataset.storeField){const [i,k]=e.target.dataset.storeField.split(":");data.stores[Number(i)][k]=e.target.value;mark()}
+    if(adminRole==="super_admin"&&e.target.closest(".admin-section[data-admin-section='content'],.admin-section[data-admin-section='contact']"))mark();
   });
   document.addEventListener("click",e=>{
     if(!data)return;
@@ -225,7 +226,6 @@
     const dpr=e.target.closest("[data-del-promo]");if(dpr&&adminRole==="super_admin"){data.promotions.splice(Number(dpr.dataset.delPromo),1);renderPromotions();mark()}
     const ta=e.target.closest("[data-toggle-admin]");if(ta&&adminRole==="super_admin")toggleAdmin(Number(ta.dataset.toggleAdmin),ta.dataset.next==="true");
     const ra=e.target.closest("[data-reset-admin]");if(ra&&adminRole==="super_admin")resetAdminPassword(Number(ra.dataset.resetAdmin));
-    const ds=e.target.closest("[data-del-store]");if(ds&&adminRole==="super_admin"){const i=Number(ds.dataset.delStore),id=data.stores[i]?.id;if(id&&data.products.some(p=>p.store===id)){if(!confirm("This store still has products. Remove the store anyway?"))return}data.stores.splice(i,1);renderAll();mark()}
   });
 
   $("#loginBtn").onclick=login;
@@ -246,16 +246,16 @@
     const n=$("#pName").value.trim();if(!n){toast("Enter product name");return null}
     const raw=$("#pPrice").value.trim();
     const images=[...new Set($("#pImages").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
-    return {id:existingId||slug(n),name:n,store:$("#pStore").value,category:$("#pCategory").value.trim()||"Other",price:raw===""?null:Number(raw),badge:$("#pBadge").value.trim(),description:$("#pDescription").value.trim(),image:images[0]||"",images,featured:$("#pFeatured").checked,stock:$("#pStock").value.trim()||"Ask for stock"};
+    return {id:existingId||slug(n),name:n,category:$("#pCategory").value.trim()||"Other",price:raw===""?null:Number(raw),badge:$("#pBadge").value.trim(),description:$("#pDescription").value.trim(),image:images[0]||"",images,featured:$("#pFeatured").checked,stock:$("#pStock").value.trim()||"Ask for stock"};
   }
   function clearProductForm(){
     editingProductIndex=-1;
     ["pName","pCategory","pPrice","pBadge","pDescription","pImages","pStock"].forEach(id=>$("#"+id).value="");
-    $("#pStore").value="";$("#pFeatured").checked=false;$("#addProductBtn").textContent="Add product";$("#cancelProductEditBtn").hidden=true;
+    $("#pFeatured").checked=false;$("#addProductBtn").textContent="Add product";$("#cancelProductEditBtn").hidden=true;
   }
   function loadProductForm(i){
     const p=data.products[i];if(!p)return;editingProductIndex=i;
-    $("#pName").value=p.name||"";$("#pStore").value=p.store||"";$("#pCategory").value=p.category||"";$("#pPrice").value=p.price==null?"":p.price;$("#pBadge").value=p.badge||"";$("#pStock").value=p.stock||"";$("#pDescription").value=p.description||"";$("#pImages").value=productImages(p).join("\n");$("#pFeatured").checked=!!p.featured;
+    $("#pName").value=p.name||"";$("#pCategory").value=p.category||"";$("#pPrice").value=p.price==null?"":p.price;$("#pBadge").value=p.badge||"";$("#pStock").value=p.stock||"";$("#pDescription").value=p.description||"";$("#pImages").value=productImages(p).join("\n");$("#pFeatured").checked=!!p.featured;
     $("#addProductBtn").textContent="Update product";$("#cancelProductEditBtn").hidden=false;$("#pName").focus();window.scrollTo({top:document.querySelector("[data-admin-section='products']").offsetTop-70,behavior:"smooth"});
   }
   $("#cancelProductEditBtn").onclick=clearProductForm;
@@ -277,7 +277,6 @@
     clearProductForm();renderProducts();renderPromotions();mark();
   };
   $("#addPromoBtn").onclick=()=>{if(adminRole!=="super_admin")return;const id=$("#promoProduct").value;if(!id)return toast("Select a product");if(data.promotions.some(x=>x.productId===id))return toast("This product is already in promotions");data.promotions.unshift({productId:id,label:$("#promoLabel").value.trim()||"PROMOTION"});$("#promoLabel").value="";renderPromotions();mark();toast("Promotion added")};
-  $("#addStoreBtn").onclick=()=>{if(adminRole!=="super_admin")return;const n=$("#sName").value.trim();if(!n)return toast("Enter store name");data.stores.push({id:slug(n),name:n,icon:$("#sIcon").value.trim()||"◇",accent:$("#sAccent").value||"#d6b36a",summary:$("#sSummary").value.trim(),address:$("#sAddress").value.trim(),phone:$("#sPhone").value.trim(),whatsapp:$("#sWhatsApp").value.trim(),email:$("#sEmail").value.trim(),facebook:$("#sFacebook").value.trim()});["sName","sIcon","sSummary","sAddress","sPhone","sWhatsApp","sEmail","sFacebook"].forEach(id=>$("#"+id).value="");renderAll();mark();toast("Store added")};
   async function createAdmin(){
     const username=$("#newAdminUsername").value.trim(),password=$("#newAdminPassword").value;
     if(!username||password.length<8)return toast("Enter a username and password of at least 8 characters");
