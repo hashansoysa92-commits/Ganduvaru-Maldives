@@ -1792,3 +1792,38 @@ img{max-width:100%}
   .storefront .promotion-card:hover,
   .storefront .contact-icon-link:hover{transform:none}
 }
+
+
+/* === Product title contrast fix === */
+.storefront .product-card.commerce-card{
+  color:#f7f7f7;
+}
+.storefront .product-card.commerce-card .product-store{
+  color:#d6a64f;
+}
+.storefront .product-card.commerce-card .product-info h3{
+  color:#ffffff;
+  opacity:1;
+  text-shadow:0 1px 1px rgba(0,0,0,.15);
+}
+.storefront .product-card.commerce-card .product-info p{
+  color:#aeb5c0;
+}
+.storefront .product-card.commerce-card .product-stock{
+  color:#c0c5cd;
+}
+.storefront .product-card.commerce-card .price{
+  color:#ffffff;
+}
+.storefront .product-card.commerce-card .quick-view{
+  color:#c4c9d1;
+}
+.storefront .product-card.commerce-card .quick-view:hover{
+  color:#f0d89c;
+}
+@media(max-width:680px){
+  .storefront .product-card.commerce-card .product-info h3{
+    color:#ffffff;
+    font-weight:800;
+  }
+}
