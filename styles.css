@@ -2200,25 +2200,38 @@ body.storefront.intro-pending{
 }
 
 
-/* === Smooth Direction-Aware Top Chrome === */
+/* === Smooth Direction-Aware Top Chrome — audited === */
+:root{
+  --top-chrome-space:118px;
+}
 .top-chrome{
-  position:sticky;
+  position:fixed;
   top:0;
+  left:0;
+  right:0;
   z-index:70;
   width:100%;
   transform:translate3d(0,0,0);
   opacity:1;
   transition:
-    transform .52s cubic-bezier(.22,1,.36,1),
-    opacity .34s ease,
-    filter .34s ease;
+    transform .48s cubic-bezier(.22,1,.36,1),
+    opacity .26s ease,
+    box-shadow .32s ease;
   will-change:transform;
   backface-visibility:hidden;
-  contain:paint;
+  -webkit-backface-visibility:hidden;
+  pointer-events:auto;
+}
+.top-chrome-spacer{
+  display:block;
+  width:100%;
+  height:var(--top-chrome-space);
+  min-height:var(--top-chrome-space);
+  pointer-events:none;
 }
 .top-chrome.top-chrome-hidden{
-  transform:translate3d(0,-100%,0);
-  opacity:.985;
+  transform:translate3d(0,calc(-100% - 2px),0);
+  opacity:.99;
   pointer-events:none;
 }
 .top-chrome.top-chrome-visible{
@@ -2235,15 +2248,18 @@ body.storefront.intro-pending{
   top:auto!important;
   z-index:1;
 }
+.top-chrome.top-chrome-visible.top-chrome-revealing{
+  box-shadow:0 18px 38px rgba(0,0,0,.18);
+}
 .top-chrome.top-chrome-hidden .site-header{
   box-shadow:none;
 }
-.top-chrome.top-chrome-revealing{
-  filter:drop-shadow(0 18px 26px rgba(0,0,0,.16));
-}
 @media(max-width:900px){
   .top-chrome{
-    transition-duration:.42s,.28s,.28s;
+    transition:
+      transform .40s cubic-bezier(.22,1,.36,1),
+      opacity .22s ease,
+      box-shadow .26s ease;
   }
 }
 @media(prefers-reduced-motion:reduce){
