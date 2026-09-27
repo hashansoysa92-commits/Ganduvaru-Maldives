@@ -99,7 +99,7 @@
   function contactIcon(type){
     const icons={
       phone:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 2.8 9.3 7c.4.6.3 1.3-.2 1.8l-1.6 1.5c1.1 2.3 3 4.2 5.3 5.3l1.5-1.6c.5-.5 1.2-.6 1.8-.2l4.2 2.7c.6.4.8 1.1.6 1.8-.5 1.6-2 2.7-3.7 2.7C9.4 21 3 14.6 3 6.8c0-1.7 1.1-3.2 2.7-3.7.7-.2 1.4.1 1.8.7Z" fill="none"/></svg>',
-      whatsapp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.4-4.4a8.4 8.4 0 1 1 15.6-4.4Z" fill="none"/><path d="M8.2 7.7c.2-.4.4-.4.7-.4h.4c.2 0 .4.1.5.5l.8 2c.1.3.1.5-.1.7l-.6.8c-.2.2-.2.4 0 .7.7 1.2 1.6 2.1 2.8 2.7.3.2.5.2.7-.1l.8-1c.2-.3.5-.3.8-.2l2 .9c.3.2.4.3.4.5 0 .3-.1 1.3-.7 1.8-.5.5-1.3.9-2.1.9-.6 0-1.3-.2-2.3-.6-1.3-.5-2.8-1.5-4-2.8-1.1-1.2-2.1-2.8-2.6-4.1-.4-1-.5-1.8-.3-2.3.1-.3.4-.7.8-1Z" stroke="none"/></svg>',
+      whatsapp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" d="M20.4 11.9a8.35 8.35 0 0 1-12.25 7.38L3.6 20.45l1.2-4.38A8.35 8.35 0 1 1 20.4 11.9Z"/><path style="fill:currentColor;stroke:none" d="M8.15 7.45c.2-.42.43-.43.72-.43h.37c.2 0 .4.08.53.45l.78 1.9c.1.28.08.5-.1.72l-.58.73c-.2.23-.2.43-.03.73.7 1.18 1.62 2.08 2.8 2.7.3.17.5.15.7-.1l.78-.95c.2-.27.48-.3.78-.17l1.9.88c.33.15.43.28.43.48 0 .3-.13 1.22-.65 1.72-.5.48-1.25.82-2.02.82-.6 0-1.3-.2-2.2-.58-1.28-.52-2.65-1.42-3.8-2.62-1.05-1.1-1.98-2.55-2.42-3.78-.35-.95-.42-1.65-.22-2.18.12-.33.42-.72.72-1.05Z"/></svg>',
       facebook:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.1 21v-8h2.8l.4-3h-3.2V8.1c0-.9.3-1.6 1.7-1.6h1.7V3.8c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2H8v3h2.8v8h3.3Z" stroke="none"/></svg>',
       instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none"/><circle cx="12" cy="12" r="4" fill="none"/><circle cx="17.5" cy="6.7" r="1" stroke="none"/></svg>',
       tiktok:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.3 3v10.8a4.6 4.6 0 1 1-3.9-4.6v3.1a1.7 1.7 0 1 0 1 1.5V3h2.9Zm0 0c.3 2.3 1.7 3.8 4 4.2v3c-1.6-.1-3-.7-4-1.6" fill="none"/></svg>'
@@ -343,7 +343,11 @@
   }
   function renderCart(){
     const items=state.cart.map(c=>({ ...c, p:state.products.find(p=>p.id===c.id) })).filter(x=>x.p);
-    $("#cartCount").textContent=items.reduce((a,b)=>a+b.qty,0);
+    const totalQty=items.reduce((a,b)=>a+b.qty,0);
+    $("#cartCount").textContent=totalQty;
+    const bubbleCount=$("#cartBubbleCount");
+    if(bubbleCount)bubbleCount.textContent=totalQty;
+    $("#cartBubble")?.classList.toggle("has-items",totalQty>0);
     $("#cartItems").innerHTML=items.length?items.map(x=>{
       const imgs=productImages(x.p);
       const thumb=imgs.length?'<div class="cart-thumb cart-thumb-image"><img src="'+esc(imgs[0])+'" alt=""></div>':'<div class="cart-thumb">'+initials(x.p.name)+'</div>';
@@ -736,6 +740,78 @@
     }
   }
 
+  function initCartBubble(){
+    const bubble=$("#cartBubble");
+    if(!bubble||bubble.dataset.bound==="1")return;
+    bubble.dataset.bound="1";
+
+    const storageKey="ganduvaru_cart_bubble_position";
+    const pad=10;
+    let startX=0,startY=0,startLeft=0,startTop=0,moved=false,ignoreClickUntil=0;
+
+    const clamp=(x,min,max)=>Math.min(Math.max(x,min),Math.max(min,max));
+    const place=(left,top)=>{
+      const w=bubble.offsetWidth||62,h=bubble.offsetHeight||62;
+      const maxLeft=window.innerWidth-w-pad;
+      const maxTop=window.innerHeight-h-pad;
+      bubble.style.left=clamp(left,pad,maxLeft)+"px";
+      bubble.style.top=clamp(top,pad,maxTop)+"px";
+      bubble.style.right="auto";
+      bubble.style.bottom="auto";
+    };
+    const save=()=>{
+      const r=bubble.getBoundingClientRect();
+      localStorage.setItem(storageKey,JSON.stringify({left:r.left,top:r.top}));
+    };
+    const restore=()=>{
+      try{
+        const saved=JSON.parse(localStorage.getItem(storageKey)||"null");
+        if(saved&&Number.isFinite(saved.left)&&Number.isFinite(saved.top)){
+          place(saved.left,saved.top);
+        }
+      }catch(e){}
+    };
+
+    bubble.addEventListener("pointerdown",e=>{
+      if(e.button!==undefined&&e.button!==0)return;
+      const r=bubble.getBoundingClientRect();
+      startX=e.clientX;startY=e.clientY;startLeft=r.left;startTop=r.top;moved=false;
+      bubble.classList.add("dragging");
+      bubble.setPointerCapture?.(e.pointerId);
+    });
+    bubble.addEventListener("pointermove",e=>{
+      if(!bubble.classList.contains("dragging"))return;
+      const dx=e.clientX-startX,dy=e.clientY-startY;
+      if(Math.hypot(dx,dy)>5)moved=true;
+      place(startLeft+dx,startTop+dy);
+    });
+    const end=e=>{
+      if(!bubble.classList.contains("dragging"))return;
+      bubble.classList.remove("dragging");
+      bubble.releasePointerCapture?.(e.pointerId);
+      if(moved){
+        save();
+        ignoreClickUntil=performance.now()+300;
+      }
+    };
+    bubble.addEventListener("pointerup",end);
+    bubble.addEventListener("pointercancel",end);
+    bubble.addEventListener("click",e=>{
+      if(performance.now()<ignoreClickUntil){e.preventDefault();e.stopPropagation();return}
+      openLayer("cartDrawer");
+    });
+    bubble.addEventListener("keydown",e=>{
+      if(e.key==="Enter"||e.key===" "){e.preventDefault();openLayer("cartDrawer")}
+    });
+    window.addEventListener("resize",()=>{
+      const r=bubble.getBoundingClientRect();
+      place(r.left,r.top);
+      save();
+    },{passive:true});
+
+    restore();
+  }
+
   function bind(){
     document.addEventListener("click",e=>{
       const promoCategory=e.target.closest("[data-promo-category]");
@@ -766,6 +842,7 @@
     $("#productSearch").addEventListener("input",e=>{state.search=e.target.value;renderProducts()});
     $("#sortSelect").addEventListener("change",e=>{state.sort=e.target.value;renderProducts()});
     $("#cartButton").onclick=()=>openLayer("cartDrawer"); $("#footerCart").onclick=()=>openLayer("cartDrawer");
+    initCartBubble();
     $("#menuButton").onclick=()=>openLayer("menuDrawer"); $("#backdrop").onclick=()=>$$(".drawer.open").forEach(d=>closeLayer(d.id));
     $("#accountButton").onclick=$("#footerAccount").onclick=()=>{ if(state.user){ toast("Signed in as "+state.user.name); } else openLayer("authModal"); };
     $("#checkoutButton").onclick=checkout; $("#requestOtpButton").onclick=requestOtp; $("#verifyOtpButton").onclick=verifyOtp;
