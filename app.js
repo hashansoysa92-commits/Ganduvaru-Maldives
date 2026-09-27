@@ -448,56 +448,149 @@
 
   function initTopChromeAutoHide(){
     const chrome=document.getElementById("topChrome");
+    const spacer=document.getElementById("topChromeSpacer");
     const header=document.querySelector(".site-header");
     if(!chrome||chrome.dataset.autoHideBound==="1")return;
     if(new URLSearchParams(location.search).get("editor")==="1")return;
     chrome.dataset.autoHideBound="1";
 
     let lastY=Math.max(0,window.scrollY||0);
+    let direction=0;
+    let travel=0;
     let ticking=false;
+    let hidden=false;
     let revealingTimer=0;
-    const minDelta=7;
-    const hideAfter=96;
+    let touchY=null;
+    let maxChromeHeight=0;
+    let lastWidth=window.innerWidth;
+
+    const setSpacerHeight=()=>{
+      const widthChanged=Math.abs(window.innerWidth-lastWidth)>40;
+      if(widthChanged){
+        maxChromeHeight=0;
+        lastWidth=window.innerWidth;
+      }
+      const h=Math.ceil(chrome.getBoundingClientRect().height||0);
+      if(h>0)maxChromeHeight=Math.max(maxChromeHeight,h);
+      if(maxChromeHeight>0){
+        document.documentElement.style.setProperty("--top-chrome-space",maxChromeHeight+"px");
+        if(spacer)spacer.style.height=maxChromeHeight+"px";
+      }
+    };
 
     const showChrome=()=>{
+      if(!hidden && chrome.classList.contains("top-chrome-visible"))return;
+      hidden=false;
       chrome.classList.remove("top-chrome-hidden");
       chrome.classList.add("top-chrome-visible","top-chrome-revealing");
       clearTimeout(revealingTimer);
-      revealingTimer=setTimeout(()=>chrome.classList.remove("top-chrome-revealing"),420);
+      revealingTimer=setTimeout(()=>chrome.classList.remove("top-chrome-revealing"),360);
     };
+
     const hideChrome=()=>{
+      if(hidden)return;
+      hidden=true;
       chrome.classList.remove("top-chrome-visible","top-chrome-revealing");
       chrome.classList.add("top-chrome-hidden");
     };
+
+    const reactToDirection=(dir,amount,y)=>{
+      if(dir!==direction){
+        direction=dir;
+        travel=0;
+      }
+      travel+=amount;
+
+      const hideAfter=Math.max(88,Math.min(maxChromeHeight||118,150)*.72);
+
+      if(y<=8){
+        travel=0;
+        showChrome();
+        return;
+      }
+
+      if(dir<0 && travel>=3){
+        // Any clear upward intent should reveal the header immediately,
+        // even when the user is still in the middle of the page.
+        travel=0;
+        showChrome();
+      }else if(dir>0 && y>hideAfter && travel>=14){
+        travel=0;
+        hideChrome();
+      }
+    };
+
     const update=()=>{
       const y=Math.max(0,window.scrollY||0);
       const delta=y-lastY;
 
       header?.classList.toggle("scrolled",y>28);
 
-      if(y<=12){
+      if(y<=8){
         showChrome();
-      }else if(Math.abs(delta)>=minDelta){
-        if(delta>0 && y>hideAfter) hideChrome();
-        else if(delta<0) showChrome();
+      }else if(Math.abs(delta)>.25){
+        reactToDirection(delta>0?1:-1,Math.abs(delta),y);
       }
 
       lastY=y;
       ticking=false;
     };
+
     const onScroll=()=>{
       if(ticking)return;
       ticking=true;
       requestAnimationFrame(update);
     };
 
+    const onWheel=e=>{
+      const dy=Number(e.deltaY)||0;
+      if(Math.abs(dy)<.5)return;
+      const y=Math.max(0,window.scrollY||0);
+      reactToDirection(dy>0?1:-1,Math.abs(dy),y);
+    };
+
+    const onTouchStart=e=>{
+      touchY=e.touches?.[0]?.clientY??null;
+    };
+
+    const onTouchMove=e=>{
+      const y=e.touches?.[0]?.clientY;
+      if(y==null||touchY==null)return;
+      const dy=y-touchY;
+      if(Math.abs(dy)>=3){
+        // Finger moving down means the page is being scrolled upward.
+        reactToDirection(dy>0?-1:1,Math.abs(dy),Math.max(0,window.scrollY||0));
+        touchY=y;
+      }
+    };
+
+    const onKeyDown=e=>{
+      if(["ArrowUp","PageUp","Home"].includes(e.key))showChrome();
+      if(["ArrowDown","PageDown","End"].includes(e.key) && window.scrollY>100)hideChrome();
+    };
+
+    setSpacerHeight();
     showChrome();
     header?.classList.toggle("scrolled",lastY>28);
+
     window.addEventListener("scroll",onScroll,{passive:true});
+    window.addEventListener("wheel",onWheel,{passive:true});
+    window.addEventListener("touchstart",onTouchStart,{passive:true});
+    window.addEventListener("touchmove",onTouchMove,{passive:true});
+    window.addEventListener("keydown",onKeyDown);
+    window.addEventListener("resize",()=>requestAnimationFrame(setSpacerHeight),{passive:true});
     window.addEventListener("pageshow",()=>{
       lastY=Math.max(0,window.scrollY||0);
-      if(lastY<=12)showChrome();
+      direction=0;
+      travel=0;
+      setSpacerHeight();
+      if(lastY<=8)showChrome();
     });
+
+    if("ResizeObserver" in window){
+      const ro=new ResizeObserver(()=>requestAnimationFrame(setSpacerHeight));
+      ro.observe(chrome);
+    }
   }
 
   function initLuxuryMotion(){
