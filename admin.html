@@ -31,6 +31,19 @@
 .orders-summary{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}.orders-summary span{padding:7px 10px;border:1px solid rgba(255,255,255,.08);border-radius:999px;font-size:9px;color:#cbd0d8}
 .order-admin-card{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:start!important;gap:14px}.order-admin-card address{font-style:normal;color:#a9b0ba;font-size:10px;line-height:1.5}.order-admin-items{white-space:pre-line;color:#d7dbe1;font-size:10px;line-height:1.55;margin-top:7px}.order-admin-meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}.order-admin-meta span{font-size:8px;color:#89919c}
 @media(max-width:680px){.permission-picker{grid-template-columns:1fr}.admin-product-toolbar,.admin-section-head{align-items:stretch;flex-direction:column}.admin-product-toolbar label{min-width:0;width:100%}.order-admin-card{grid-template-columns:1fr}.subcategory-add-row{flex-direction:column}}
+
+/* === Admin Navigation Runtime Audit === */
+.admin-nav{z-index:12;isolation:isolate;pointer-events:auto}
+.admin-nav button{position:relative;z-index:1;pointer-events:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none;transition:background .24s ease,color .24s ease,transform .24s ease,box-shadow .24s ease}
+.admin-nav button:hover,.admin-nav button:focus-visible{outline:none;color:#f4dda3;background:rgba(240,216,156,.07);transform:translateX(2px)}
+.admin-nav button.active{box-shadow:0 10px 28px rgba(177,132,52,.15);transform:none}
+.admin-nav button[hidden]{display:none!important}
+@media(max-width:760px){
+  .admin-nav{display:flex!important;flex-wrap:nowrap;gap:6px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;padding:8px!important}
+  .admin-nav button{flex:0 0 auto;min-width:max-content!important;scroll-snap-align:center;text-align:center;padding-inline:16px}
+  .admin-nav button:hover,.admin-nav button:focus-visible{transform:none}
+  .admin-section{scroll-margin-top:14px}
+}
 </style>
 </head>
 <body>
@@ -55,16 +68,16 @@
     <section id="adminApp" hidden>
       <div class="admin-top"><div><p class="eyebrow">GANDUVARU ADMIN</p><h1>Site control center</h1></div><div style="display:flex;align-items:center;gap:10px"><span class="admin-role-badge" id="adminRoleBadge">ADMIN</span><span class="admin-status" id="adminStatus">Secure session</span><button class="mini-btn" id="logoutBtn">Logout</button></div></div>
       <div class="admin-grid">
-        <nav class="admin-nav">
-          <button class="active" data-admin-tab="live" data-permission="site_content_manage">Live Editor</button>
-          <button data-admin-tab="content" data-permission="site_content_manage">Content</button>
-          <button data-admin-tab="tabs" data-permission="site_content_manage">Tabs</button>
-          <button data-admin-tab="products" data-permission-any="products_add,products_edit,products_delete">Products</button>
-          <button data-admin-tab="categories" data-permission="categories_manage">Categories</button>
-          <button data-admin-tab="promotions" data-permission="promotions_manage">Promotions</button>
-          <button data-admin-tab="orders" data-permission="orders_view">Orders</button>
-          <button data-admin-tab="contact" data-permission="contact_manage">Contact</button>
-          <button data-admin-tab="admins" data-super-only>Admin Access</button>
+        <nav class="admin-nav" role="tablist" aria-label="Admin sections">
+          <button type="button" class="active" role="tab" aria-selected="true" data-admin-tab="live" data-permission="site_content_manage">Live Editor</button>
+          <button type="button" role="tab" aria-selected="false" data-admin-tab="content" data-permission="site_content_manage">Content</button>
+          <button type="button" role="tab" aria-selected="false" data-admin-tab="tabs" data-permission="site_content_manage">Tabs</button>
+          <button type="button" role="tab" aria-selected="false" data-admin-tab="products" data-permission-any="products_add,products_edit,products_delete">Products</button>
+          <button type="button" role="tab" aria-selected="false" data-admin-tab="categories" data-permission="categories_manage">Categories</button>
+          <button type="button" role="tab" aria-selected="false" data-admin-tab="promotions" data-permission="promotions_manage">Promotions</button>
+          <button type="button" role="tab" aria-selected="false" data-admin-tab="orders" data-permission="orders_view">Orders</button>
+          <button type="button" role="tab" aria-selected="false" data-admin-tab="contact" data-permission="contact_manage">Contact</button>
+          <button type="button" role="tab" aria-selected="false" data-admin-tab="admins" data-super-only>Admin Access</button>
         </nav>
         <div>
           <section class="admin-panel admin-section active" data-admin-section="live" data-permission="site_content_manage">
@@ -251,6 +264,6 @@
   </main>
   <div class="toast" id="toast"></div>
   <script src="config.js?v=20260927-luxury-audit"></script>
-  <script src="admin.js?v=20260930-adminnav-audit"></script>
+  <script src="admin.js?v=20260930-adminnav-final"></script>
 </body>
 </html>
