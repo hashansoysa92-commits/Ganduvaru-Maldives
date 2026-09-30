@@ -135,9 +135,9 @@
   }
   function applyRoleUI(){
     const superAdmin=adminRole==="super_admin";
-    $$$("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
-    $$$("[data-permission]").forEach(el=>el.hidden=!hasPermission(el.dataset.permission));
-    $$$("[data-permission-any]").forEach(el=>el.hidden=!hasAnyPermission(String(el.dataset.permissionAny||"").split(",").filter(Boolean)));
+    $$("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
+    $$("[data-permission]").forEach(el=>el.hidden=!hasPermission(el.dataset.permission));
+    $$("[data-permission-any]").forEach(el=>el.hidden=!hasAnyPermission(String(el.dataset.permissionAny||"").split(",").filter(Boolean)));
     $("#adminRoleBadge").textContent=superAdmin?"SUPER ADMIN":"ADMIN";
     $("#adminStatus").textContent=adminUsername||"Secure session";
 
@@ -688,7 +688,7 @@
 
   async function createAdmin(){
     const username=$("#newAdminUsername").value.trim(),password=$("#newAdminPassword").value;
-    const permissions=$$$("#newAdminPermissions input:checked").map(x=>x.value);
+    const permissions=$$("#newAdminPermissions input:checked").map(x=>x.value);
     if(!username||password.length<8)return toast("Enter a username and password of at least 8 characters");
     if(!permissions.length)return toast("Select at least one access permission");
     $("#createAdminBtn").disabled=true;
@@ -696,7 +696,7 @@
       const result=await rpc("ganduvaru_admin_create_user_v2",{p_token:sessionToken,p_username:username,p_password:password,p_permissions:permissions});
       if(!result?.ok)throw new Error(result?.message||"Could not create admin");
       $("#newAdminUsername").value="";$("#newAdminPassword").value="";
-      $$$("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
+      $$("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
       await loadAdminUsers();toast("Admin created with selected access");
     }catch(e){toast(e.message||"Could not create admin")}
     finally{$("#createAdminBtn").disabled=false}
