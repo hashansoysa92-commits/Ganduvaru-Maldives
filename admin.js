@@ -470,8 +470,8 @@
     if(!data)return;
     const tab=e.target.closest("[data-admin-tab]");
     if(tab&&!tab.hidden){
-      $$$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));
-      $$$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab));
+      $("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));
+      $("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab));
       if(tab.dataset.adminTab==="orders"&&hasPermission("orders_view"))loadOrders();
     }
 
