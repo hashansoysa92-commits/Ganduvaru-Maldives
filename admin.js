@@ -112,17 +112,17 @@
   }
   function applyRoleUI(){
     const superAdmin=adminRole==="super_admin";
-    $("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
-    $("[data-permission]").forEach(el=>el.hidden=!hasPermission(el.dataset.permission));
-    $("[data-permission-any]").forEach(el=>el.hidden=!hasAnyPermission(String(el.dataset.permissionAny||"").split(",").filter(Boolean)));
+    $$("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
+    $$("[data-permission]").forEach(el=>el.hidden=!hasPermission(el.dataset.permission));
+    $$("[data-permission-any]").forEach(el=>el.hidden=!hasAnyPermission(String(el.dataset.permissionAny||"").split(",").filter(Boolean)));
     $("#adminRoleBadge").textContent=superAdmin?"SUPER ADMIN":"ADMIN";
     $("#adminStatus").textContent=adminUsername||"Secure session";
 
-    const visibleTabs=$("[data-admin-tab]").filter(x=>!x.hidden);
+    const visibleTabs=$$("[data-admin-tab]").filter(x=>!x.hidden);
     let active=visibleTabs.find(x=>x.classList.contains("active"))||visibleTabs[0];
     if(active){
-      $("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===active));
-      $("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===active.dataset.adminTab));
+      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===active));
+      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===active.dataset.adminTab));
     }
 
     const abilities=[
@@ -285,9 +285,25 @@
 
   function renderProducts(){
     const box=$("#productsList");if(!box)return;
-    const filter=$("#adminProductCategoryFilter")?.value||"all";
+    const filterBox=$("#adminProductCategoryFilter");
+    let filter=filterBox?.value||"all";
     const canEdit=hasPermission("products_edit"),canDelete=hasPermission("products_delete");
-    const list=data.products.map((p,i)=>({p,i})).filter(x=>filter==="all"||x.p.categoryId===filter);
+
+    let selectedCategory=filter==="all"?null:categoryById(filter);
+    if(filter!=="all"&&!selectedCategory){
+      filter="all";
+      selectedCategory=null;
+      if(filterBox)filterBox.value="all";
+    }
+
+    const list=data.products.map((p,i)=>({p,i})).filter(({p})=>{
+      if(filter==="all")return true;
+      if(p.categoryId===filter)return true;
+      const legacyName=String(p.category||"").trim().toLowerCase();
+      const selectedName=String(selectedCategory?.name||"").trim().toLowerCase();
+      return !!selectedName&&legacyName===selectedName;
+    });
+
     $("#adminProductCount").textContent=list.length+" product"+(list.length===1?"":"s");
     box.innerHTML=list.length?list.map(({p,i})=>{
       const n=productImages(p).length;
@@ -454,8 +470,8 @@
     if(!data)return;
     const tab=e.target.closest("[data-admin-tab]");
     if(tab&&!tab.hidden){
-      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));
-      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab));
+      $$$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));
+      $$$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab));
       if(tab.dataset.adminTab==="orders"&&hasPermission("orders_view"))loadOrders();
     }
 
@@ -638,7 +654,7 @@
 
   async function createAdmin(){
     const username=$("#newAdminUsername").value.trim(),password=$("#newAdminPassword").value;
-    const permissions=$("#newAdminPermissions input:checked").map(x=>x.value);
+    const permissions=$$("#newAdminPermissions input:checked").map(x=>x.value);
     if(!username||password.length<8)return toast("Enter a username and password of at least 8 characters");
     if(!permissions.length)return toast("Select at least one access permission");
     $("#createAdminBtn").disabled=true;
@@ -646,7 +662,7 @@
       const result=await rpc("ganduvaru_admin_create_user_v2",{p_token:sessionToken,p_username:username,p_password:password,p_permissions:permissions});
       if(!result?.ok)throw new Error(result?.message||"Could not create admin");
       $("#newAdminUsername").value="";$("#newAdminPassword").value="";
-      $("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
+      $$("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
       await loadAdminUsers();toast("Admin created with selected access");
     }catch(e){toast(e.message||"Could not create admin")}
     finally{$("#createAdminBtn").disabled=false}
