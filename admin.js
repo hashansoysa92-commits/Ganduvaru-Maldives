@@ -14,17 +14,17 @@
   function hasPermission(p){return adminRole==="super_admin"||adminPermissions.includes("*")||adminPermissions.includes(p)}
   function hasAnyPermission(list){return adminRole==="super_admin"||list.some(hasPermission)}
   function activateAdminTab(tabOrName,scroll=false){
-    const tabs=$("[data-admin-tab]").filter(x=>!x.hidden);
+    const tabs=$$("[data-admin-tab]").filter(x=>!x.hidden);
     const tab=typeof tabOrName==="string"?tabs.find(x=>x.dataset.adminTab===tabOrName):tabOrName;
     if(!tab||tab.hidden)return false;
-    $("[data-admin-tab]").forEach(x=>{
+    $$("[data-admin-tab]").forEach(x=>{
       const active=x===tab;
       x.classList.toggle("active",active);
       x.setAttribute("aria-selected",active?"true":"false");
       x.tabIndex=active?0:-1;
     });
     let activeSection=null;
-    $("[data-admin-section]").forEach(x=>{
+    $$("[data-admin-section]").forEach(x=>{
       const active=x.dataset.adminSection===tab.dataset.adminTab;
       x.classList.toggle("active",active);
       x.setAttribute("aria-hidden",active?"false":"true");
@@ -135,13 +135,13 @@
   }
   function applyRoleUI(){
     const superAdmin=adminRole==="super_admin";
-    $$("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
-    $$("[data-permission]").forEach(el=>el.hidden=!hasPermission(el.dataset.permission));
-    $$("[data-permission-any]").forEach(el=>el.hidden=!hasAnyPermission(String(el.dataset.permissionAny||"").split(",").filter(Boolean)));
+    $$$("[data-super-only]").forEach(el=>el.hidden=!superAdmin);
+    $$$("[data-permission]").forEach(el=>el.hidden=!hasPermission(el.dataset.permission));
+    $$$("[data-permission-any]").forEach(el=>el.hidden=!hasAnyPermission(String(el.dataset.permissionAny||"").split(",").filter(Boolean)));
     $("#adminRoleBadge").textContent=superAdmin?"SUPER ADMIN":"ADMIN";
     $("#adminStatus").textContent=adminUsername||"Secure session";
 
-    const visibleTabs=$("[data-admin-tab]").filter(x=>!x.hidden);
+    const visibleTabs=$$("[data-admin-tab]").filter(x=>!x.hidden);
     const active=visibleTabs.find(x=>x.classList.contains("active"))||visibleTabs[0];
     if(active)activateAdminTab(active,false);
 
@@ -553,7 +553,7 @@
 
   $(".admin-nav")?.addEventListener("keydown",e=>{
     if(!["ArrowDown","ArrowRight","ArrowUp","ArrowLeft","Home","End"].includes(e.key))return;
-    const tabs=$("[data-admin-tab]").filter(x=>!x.hidden);
+    const tabs=$$("[data-admin-tab]").filter(x=>!x.hidden);
     if(!tabs.length)return;
     const current=tabs.indexOf(document.activeElement);
     let next=0;
@@ -688,7 +688,7 @@
 
   async function createAdmin(){
     const username=$("#newAdminUsername").value.trim(),password=$("#newAdminPassword").value;
-    const permissions=$$("#newAdminPermissions input:checked").map(x=>x.value);
+    const permissions=$$$("#newAdminPermissions input:checked").map(x=>x.value);
     if(!username||password.length<8)return toast("Enter a username and password of at least 8 characters");
     if(!permissions.length)return toast("Select at least one access permission");
     $("#createAdminBtn").disabled=true;
@@ -696,7 +696,7 @@
       const result=await rpc("ganduvaru_admin_create_user_v2",{p_token:sessionToken,p_username:username,p_password:password,p_permissions:permissions});
       if(!result?.ok)throw new Error(result?.message||"Could not create admin");
       $("#newAdminUsername").value="";$("#newAdminPassword").value="";
-      $$("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
+      $$$("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
       await loadAdminUsers();toast("Admin created with selected access");
     }catch(e){toast(e.message||"Could not create admin")}
     finally{$("#createAdminBtn").disabled=false}
