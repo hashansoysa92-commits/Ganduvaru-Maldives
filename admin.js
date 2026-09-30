@@ -13,6 +13,29 @@
   function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
   function hasPermission(p){return adminRole==="super_admin"||adminPermissions.includes("*")||adminPermissions.includes(p)}
   function hasAnyPermission(list){return adminRole==="super_admin"||list.some(hasPermission)}
+  function activateAdminTab(tabOrName,scroll=false){
+    const tabs=$("[data-admin-tab]").filter(x=>!x.hidden);
+    const tab=typeof tabOrName==="string"?tabs.find(x=>x.dataset.adminTab===tabOrName):tabOrName;
+    if(!tab||tab.hidden)return false;
+    $("[data-admin-tab]").forEach(x=>{
+      const active=x===tab;
+      x.classList.toggle("active",active);
+      x.setAttribute("aria-selected",active?"true":"false");
+      x.tabIndex=active?0:-1;
+    });
+    let activeSection=null;
+    $("[data-admin-section]").forEach(x=>{
+      const active=x.dataset.adminSection===tab.dataset.adminTab;
+      x.classList.toggle("active",active);
+      x.setAttribute("aria-hidden",active?"false":"true");
+      if(active)activeSection=x;
+    });
+    if(tab.dataset.adminTab==="orders"&&hasPermission("orders_view"))loadOrders();
+    if(scroll&&activeSection&&window.matchMedia("(max-width:760px)").matches){
+      requestAnimationFrame(()=>activeSection.scrollIntoView({behavior:"smooth",block:"start"}));
+    }
+    return true;
+  }
   const permissionLabels={
     products_add:"Add products",products_edit:"Edit products",products_delete:"Delete products",
     categories_manage:"Categories & sub categories",promotions_manage:"Promotions",orders_view:"View orders",
@@ -118,12 +141,9 @@
     $("#adminRoleBadge").textContent=superAdmin?"SUPER ADMIN":"ADMIN";
     $("#adminStatus").textContent=adminUsername||"Secure session";
 
-    const visibleTabs=$$("[data-admin-tab]").filter(x=>!x.hidden);
-    let active=visibleTabs.find(x=>x.classList.contains("active"))||visibleTabs[0];
-    if(active){
-      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===active));
-      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===active.dataset.adminTab));
-    }
+    const visibleTabs=$("[data-admin-tab]").filter(x=>!x.hidden);
+    const active=visibleTabs.find(x=>x.classList.contains("active"))||visibleTabs[0];
+    if(active)activateAdminTab(active,false);
 
     const abilities=[
       hasPermission("products_add")?"add":null,
@@ -470,9 +490,8 @@
     if(!data)return;
     const tab=e.target.closest("[data-admin-tab]");
     if(tab&&!tab.hidden){
-      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));
-      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab));
-      if(tab.dataset.adminTab==="orders"&&hasPermission("orders_view"))loadOrders();
+      e.preventDefault();
+      activateAdminTab(tab,true);
     }
 
     const dt=e.target.closest("[data-del-tab]");
@@ -530,6 +549,21 @@
     const ta=e.target.closest("[data-toggle-admin]");if(ta&&adminRole==="super_admin")toggleAdmin(Number(ta.dataset.toggleAdmin),ta.dataset.next==="true");
     const ra=e.target.closest("[data-reset-admin]");if(ra&&adminRole==="super_admin")resetAdminPassword(Number(ra.dataset.resetAdmin));
     const sap=e.target.closest("[data-save-admin-permissions]");if(sap&&adminRole==="super_admin")saveAdminPermissions(Number(sap.dataset.saveAdminPermissions));
+  });
+
+  $(".admin-nav")?.addEventListener("keydown",e=>{
+    if(!["ArrowDown","ArrowRight","ArrowUp","ArrowLeft","Home","End"].includes(e.key))return;
+    const tabs=$("[data-admin-tab]").filter(x=>!x.hidden);
+    if(!tabs.length)return;
+    const current=tabs.indexOf(document.activeElement);
+    let next=0;
+    if(e.key==="Home")next=0;
+    else if(e.key==="End")next=tabs.length-1;
+    else if(e.key==="ArrowDown"||e.key==="ArrowRight")next=(Math.max(0,current)+1)%tabs.length;
+    else next=(current<=0?tabs.length:current)-1;
+    e.preventDefault();
+    tabs[next].focus();
+    activateAdminTab(tabs[next],false);
   });
 
   $("#loginBtn").onclick=login;
