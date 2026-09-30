@@ -121,8 +121,8 @@
     const visibleTabs=$$("[data-admin-tab]").filter(x=>!x.hidden);
     let active=visibleTabs.find(x=>x.classList.contains("active"))||visibleTabs[0];
     if(active){
-      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===active));
-      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===active.dataset.adminTab));
+      $$$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===active));
+      $$$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===active.dataset.adminTab));
     }
 
     const abilities=[
@@ -470,8 +470,8 @@
     if(!data)return;
     const tab=e.target.closest("[data-admin-tab]");
     if(tab&&!tab.hidden){
-      $("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));
-      $("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab));
+      $$("[data-admin-tab]").forEach(x=>x.classList.toggle("active",x===tab));
+      $$("[data-admin-section]").forEach(x=>x.classList.toggle("active",x.dataset.adminSection===tab.dataset.adminTab));
       if(tab.dataset.adminTab==="orders"&&hasPermission("orders_view"))loadOrders();
     }
 
@@ -654,7 +654,7 @@
 
   async function createAdmin(){
     const username=$("#newAdminUsername").value.trim(),password=$("#newAdminPassword").value;
-    const permissions=$$("#newAdminPermissions input:checked").map(x=>x.value);
+    const permissions=$$$("#newAdminPermissions input:checked").map(x=>x.value);
     if(!username||password.length<8)return toast("Enter a username and password of at least 8 characters");
     if(!permissions.length)return toast("Select at least one access permission");
     $("#createAdminBtn").disabled=true;
@@ -662,7 +662,7 @@
       const result=await rpc("ganduvaru_admin_create_user_v2",{p_token:sessionToken,p_username:username,p_password:password,p_permissions:permissions});
       if(!result?.ok)throw new Error(result?.message||"Could not create admin");
       $("#newAdminUsername").value="";$("#newAdminPassword").value="";
-      $$("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
+      $$$("#newAdminPermissions input").forEach(x=>x.checked=x.value==="products_add");
       await loadAdminUsers();toast("Admin created with selected access");
     }catch(e){toast(e.message||"Could not create admin")}
     finally{$("#createAdminBtn").disabled=false}
